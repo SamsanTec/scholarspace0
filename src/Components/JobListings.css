@@ -1,0 +1,134 @@
+.job-listings-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dashboard-header {
+    margin-bottom: 20px;
+  }
+  
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #4a0f34; /* Change to the desired color */
+    padding: 10px 20px;
+    color: white;
+  }
+  
+  .navbar-logo img {
+    height: 40px;
+  }
+  
+  .navbar-search {
+    display: flex;
+    align-items: center;
+  }
+  
+  .navbar-search input {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    margin-right: 5px;
+  }
+  
+  .navbar-search .search-button {
+    background-color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  
+  .navbar-search .search-button .fa-search {
+    color: #4a0f34; /* Change to the desired color */
+  }
+  
+  .navbar-links a {
+    color: white;
+    margin: 0 10px;
+    text-decoration: none;
+  }
+  
+  .navbar-links a:hover {
+    text-decoration: underline;
+  }
+  
+  .navbar-profile {
+    display: flex;
+    align-items: center;
+  }
+  
+  .profile-initials {
+    background-color: #ffffff;
+    color: #4a0f34; /* Change to the desired color */
+    border-radius: 50%;
+    padding: 10px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  
+  .dashboard-main {
+    text-align: left;
+  }
+  
+  .dashboard-main h2 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+  }
+  
+  .dashboard-main p {
+    font-size: 1.2rem;
+  }
+  
+  .job-filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .job-filters input,
+  .job-filters select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    flex: 1;
+  }
+  
+  .job-filters button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .job-filters button:hover {
+    background-color: #0056b3;
+  }
+  
+  .job-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .job-card {
+    flex: 1 1 calc(33.333% - 20px);
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
