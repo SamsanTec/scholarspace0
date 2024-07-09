@@ -1,37 +1,63 @@
-import React from 'react';
-import './StudentDashboard.css';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import './StudentAuthPage.css';
 
-const StudentDashboard = () => {
+const StudentAuthPage = () => {
+  const [isLogin, setIsLogin] = useState(true);
+  const navigate = useNavigate();
+
+  const toggleAuthMode = () => {
+    setIsLogin(!isLogin);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Assume authentication is successful
+    navigate('/student-onboarding');
+  };
+
   return (
-    <div className="dashboard-container">
-      <header className="dashboard-header">
-        <nav className="navbar">
-          <div className="navbar-logo">
-            <img src="/path/to/logo.png" alt="Career Connection Logo" />
-          </div>
-          <div className="navbar-search">
-            <input type="text" placeholder="Search" />
-            <button className="search-button">
-              <i className="fa fa-search"></i>
-            </button>
-          </div>
-          <div className="navbar-links">
-            <a href="#jobs">Jobs</a>
-            <a href="#events">Events</a>
-            <a href="#employers">Employers</a>
-            <a href="#resources">Resources</a>
-          </div>
-          <div className="navbar-profile">
-            <div className="profile-initials">AS</div>
-          </div>
-        </nav>
-      </header>
-      <main className="dashboard-main">
-        <h2>Dashboard</h2>
-        <p>Here you can find your saved jobs, recommended courses, and more.</p>
-      </main>
+    <div className="auth-container">
+      <h1>{isLogin ? 'Login' : 'Sign Up'}</h1>
+      <form onSubmit={handleSubmit}>
+        {isLogin ? (
+          <>
+            <div className="form-group">
+              <label htmlFor="email">Email:</label>
+              <input type="email" id="email" name="email" required />
+            </div>
+            <div className="form-group">
+              <label htmlFor="password">Password:</label>
+              <input type="password" id="password" name="password" required />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="form-group">
+              <label htmlFor="email">Email:</label>
+              <input type="email" id="email" name="email" required />
+            </div>
+            <div className="form-group">
+              <label htmlFor="fullName">Full Name:</label>
+              <input type="text" id="fullName" name="fullName" required />
+            </div>
+            <div className="form-group">
+              <label htmlFor="studentNumber">Student Number:</label>
+              <input type="text" id="studentNumber" name="studentNumber" required />
+            </div>
+            <div className="form-group">
+              <label htmlFor="password">Create Password:</label>
+              <input type="password" id="password" name="password" required />
+            </div>
+          </>
+        )}
+        <button type="submit">{isLogin ? 'Login' : 'Sign Up'}</button>
+      </form>
+      <button className="toggle-button" onClick={toggleAuthMode}>
+        {isLogin ? 'Don\'t have an account? Sign Up' : 'Already have an account? Login'}
+      </button>
     </div>
   );
 };
 
-export default StudentDashboard;
+export default StudentAuthPage;
