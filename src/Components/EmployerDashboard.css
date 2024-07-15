@@ -1,0 +1,93 @@
+.dashboard-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dashboard-header {
+    margin-bottom: 20px;
+  }
+  
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #003366; /* Blue color for header */
+    padding: 10px 20px;
+    color: white;
+  }
+  
+  .navbar-logo img {
+    height: 40px;
+  }
+  
+  .navbar-links a {
+    color: white;
+    margin: 0 10px;
+    text-decoration: none;
+  }
+  
+  .navbar-links a:hover {
+    text-decoration: underline;
+  }
+  
+  .navbar-profile {
+    display: flex;
+    align-items: center;
+  }
+  
+  .profile-initials {
+    background-color: #ffffff;
+    color: #003366; /* Blue color for initials */
+    border-radius: 50%;
+    padding: 10px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  
+  .dashboard-main {
+    text-align: left;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+  }
+  
+  .dashboard-main h2 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+  }
+  
+  .dashboard-main p {
+    font-size: 1.2rem;
+  }
+  
+  .dashboard-actions {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  
+  .action-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #003366; /* Blue color for buttons */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    text-align: center;
+  }
+  
+  .action-button:hover {
+    background-color: #002244; /* Darker blue for hover effect */
+  }
+  

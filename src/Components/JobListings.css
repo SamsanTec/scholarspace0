@@ -1,0 +1,57 @@
+.job-details-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.job-details-container h1 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.options-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.option {
+  margin-right: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.option input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+button[type="submit"] {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+.option label {
+  color: #080808; /* Change font color to black */
+}
+

@@ -1,0 +1,45 @@
+.review-job-post-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .review-job-post-container h1 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .review-section {
+    margin-bottom: 1.5rem;
+  }
+  
+  .review-section h2 {
+    margin-bottom: 1rem;
+    color: #007bff;
+  }
+  
+  .review-section p {
+    margin-bottom: 0.5rem;
+  }
+  
+  .review-buttons {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .review-buttons button {
+    padding: 0.75rem 1.5rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .review-buttons button:hover {
+    background-color: #0056b3;
+  }
+  
