@@ -10,6 +10,8 @@ import JobListings from './Components/JobListings';
 import EmployerDashboard from './Components/EmployerDashboard';
 import PostJob from './Components/PostJob';
 import JobDetails from './Components/JobDetails';
+import Courses from './Components/Courses';
+import CourseDetails from './Components/CourseDetails';
 import './App.css';
 
 function App() {
@@ -27,6 +29,8 @@ function App() {
           <Route path="/employer/dashboard" element={<EmployerDashboard />} />
           <Route path="/employer/post-job" element={<PostJob />} />
           <Route path="/employer/job-details" element={<JobDetails />} />
+          <Route path="/courses" element={<Courses />} />
+          <Route path="/courses/:courseId" element={<CourseDetails />} />
         </Routes>
       </div>
     </Router>
