@@ -1,43 +1,92 @@
-import React from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { UserContext } from './UserContext';
 import './PostJob.css';
 
-const PostJob = () => {
+const PostJob = ({ apiUrl }) => {
+  const { user } = useContext(UserContext);
   const navigate = useNavigate();
+  const [jobTitle, setJobTitle] = useState('');
+  const [numPeople, setNumPeople] = useState('');
+  const [jobLocation, setJobLocation] = useState('');
+  const [streetAddress, setStreetAddress] = useState('');
+  const [companyDescription, setCompanyDescription] = useState('');
 
-  const handleNext = (e) => {
+  const handleNext = async (e) => {
     e.preventDefault();
-    navigate('/employer/job-details');
+
+    const jobDetails = {
+      jobTitle,
+      numPeople,
+      jobLocation,
+      streetAddress,
+      companyDescription,
+      userId: user.userId,
+    };
+
+    try {
+      const response = await fetch(`${apiUrl}/post-job`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(jobDetails),
+      });
+
+      if (response.ok) {
+        const message = await response.json();
+        console.log(message);
+        navigate('/employer/dashboard');
+      } else {
+        const errorMessage = await response.text();
+        console.error('Error:', errorMessage);
+        alert(errorMessage);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred. Please try again.');
+    }
   };
 
   return (
     <div className="post-job-container">
       <h1>Post Job</h1>
-      
       <form onSubmit={handleNext}>
         <div className="form-group">
           <label htmlFor="jobTitle">Job Title *</label>
-          <input type="text" id="jobTitle" name="jobTitle" required />
+          <input 
+            type="text" 
+            id="jobTitle" 
+            name="jobTitle" 
+            value={jobTitle}
+            onChange={(e) => setJobTitle(e.target.value)}
+            required 
+          />
         </div>
         <div className="form-group">
           <label htmlFor="numPeople">Number of people to hire for this job *</label>
-          <select id="numPeople" name="numPeople" required>
+          <select 
+            id="numPeople" 
+            name="numPeople" 
+            value={numPeople}
+            onChange={(e) => setNumPeople(e.target.value)}
+            required
+          >
             <option value="">Select an option</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
+            {[...Array(10).keys()].map(num => (
+              <option key={num + 1} value={num + 1}>{num + 1}</option>
+            ))}
           </select>
         </div>
         <div className="form-group">
           <label htmlFor="jobLocation">Job location type *</label>
-          <select id="jobLocation" name="jobLocation" required>
+          <select 
+            id="jobLocation" 
+            name="jobLocation" 
+            value={jobLocation}
+            onChange={(e) => setJobLocation(e.target.value)}
+            required
+          >
             <option value="">Select an option</option>
             <option value="inPerson">In person – precise location</option>
             <option value="remote">Remote</option>
@@ -46,11 +95,24 @@ const PostJob = () => {
         </div>
         <div className="form-group">
           <label htmlFor="streetAddress">Street address *</label>
-          <input type="text" id="streetAddress" name="streetAddress" required />
+          <input 
+            type="text" 
+            id="streetAddress" 
+            name="streetAddress" 
+            value={streetAddress}
+            onChange={(e) => setStreetAddress(e.target.value)}
+            required 
+          />
         </div>
         <div className="form-group">
           <label htmlFor="companyDescription">Company description</label>
-          <textarea id="companyDescription" name="companyDescription" rows="4" />
+          <textarea 
+            id="companyDescription" 
+            name="companyDescription" 
+            rows="4" 
+            value={companyDescription}
+            onChange={(e) => setCompanyDescription(e.target.value)}
+          />
         </div>
         <button type="submit">Next</button>
       </form>

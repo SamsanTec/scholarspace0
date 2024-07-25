@@ -1,8 +1,37 @@
-import React from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { UserContext } from './UserContext';
 import './EmployerDashboard.css';
 
-const EmployerDashboard = () => {
+const EmployerDashboard = ({ apiUrl }) => {
+  const { user } = useContext(UserContext);
+  const [jobs, setJobs] = useState([]);
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/jobs/${user.userId}`);
+        const data = await response.json();
+        setJobs(data);
+      } catch (error) {
+        console.error('Error fetching jobs:', error);
+      }
+    };
+
+    fetchJobs();
+  }, [apiUrl, user.userId]);
+
+  const handleDelete = async (jobId) => {
+    try {
+      await fetch(`${apiUrl}/jobs/${jobId}`, {
+        method: 'DELETE',
+      });
+      setJobs(jobs.filter(job => job.id !== jobId));
+    } catch (error) {
+      console.error('Error deleting job:', error);
+    }
+  };
+
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
@@ -16,7 +45,7 @@ const EmployerDashboard = () => {
             <Link to="/employer/provide-feedback">Provide Feedback</Link>
           </div>
           <div className="navbar-profile">
-            <div className="profile-initials">EM</div>
+            <div className="profile-initials">{user.companyName && user.companyName.match(/\b(\w)/g).join('')}</div>
           </div>
         </nav>
       </header>
@@ -27,6 +56,21 @@ const EmployerDashboard = () => {
           <Link to="/employer/post-job" className="action-button">Post Job</Link>
           <Link to="/employer/view-applications" className="action-button">View Applications</Link>
           <Link to="/employer/provide-feedback" className="action-button">Provide Feedback</Link>
+        </div>
+        <div className="job-listings">
+          {jobs.map(job => (
+            <div key={job.id} className="job-card">
+              <h3>{job.jobTitle}</h3>
+              <p><strong>Number of people to hire:</strong> {job.numPeople}</p>
+              <p><strong>Location:</strong> {job.jobLocation}</p>
+              <p><strong>Address:</strong> {job.streetAddress}</p>
+              <p><strong>Description:</strong> {job.companyDescription}</p>
+              <div className="job-card-actions">
+                <Link to={`/employer/edit-job/${job.id}`} className="edit-button">Edit</Link>
+                <button onClick={() => handleDelete(job.id)} className="delete-button">Delete</button>
+              </div>
+            </div>
+          ))}
         </div>
       </main>
     </div>
