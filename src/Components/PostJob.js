@@ -6,11 +6,21 @@ import './PostJob.css';
 const PostJob = ({ apiUrl }) => {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
+
   const [jobTitle, setJobTitle] = useState('');
   const [numPeople, setNumPeople] = useState('');
   const [jobLocation, setJobLocation] = useState('');
   const [streetAddress, setStreetAddress] = useState('');
   const [companyDescription, setCompanyDescription] = useState('');
+  const [competitionId, setCompetitionId] = useState('');
+  const [internalClosingDate, setInternalClosingDate] = useState('');
+  const [externalClosingDate, setExternalClosingDate] = useState('');
+  const [payLevel, setPayLevel] = useState('');
+  const [employmentType, setEmploymentType] = useState('');
+  const [travelFrequency, setTravelFrequency] = useState('');
+  const [employeeGroup, setEmployeeGroup] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [contactInformation, setContactInformation] = useState('');
 
   const handleNext = async (e) => {
     e.preventDefault();
@@ -22,6 +32,15 @@ const PostJob = ({ apiUrl }) => {
       streetAddress,
       companyDescription,
       userId: user.userId,
+      competitionId,
+      internalClosingDate,
+      externalClosingDate,
+      payLevel,
+      employmentType,
+      travelFrequency,
+      employeeGroup,
+      companyName,
+      contactInformation,
     };
 
     try {
@@ -112,6 +131,96 @@ const PostJob = ({ apiUrl }) => {
             rows="4" 
             value={companyDescription}
             onChange={(e) => setCompanyDescription(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="competitionId">Competition ID</label>
+          <input 
+            type="text" 
+            id="competitionId" 
+            name="competitionId" 
+            value={competitionId}
+            onChange={(e) => setCompetitionId(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="internalClosingDate">Internal Closing Date</label>
+          <input 
+            type="date" 
+            id="internalClosingDate" 
+            name="internalClosingDate" 
+            value={internalClosingDate}
+            onChange={(e) => setInternalClosingDate(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="externalClosingDate">External Closing Date</label>
+          <input 
+            type="date" 
+            id="externalClosingDate" 
+            name="externalClosingDate" 
+            value={externalClosingDate}
+            onChange={(e) => setExternalClosingDate(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="payLevel">Pay Level</label>
+          <input 
+            type="text" 
+            id="payLevel" 
+            name="payLevel" 
+            value={payLevel}
+            onChange={(e) => setPayLevel(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="employmentType">Employment Type</label>
+          <input 
+            type="text" 
+            id="employmentType" 
+            name="employmentType" 
+            value={employmentType}
+            onChange={(e) => setEmploymentType(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="travelFrequency">Travel Frequency</label>
+          <input 
+            type="text" 
+            id="travelFrequency" 
+            name="travelFrequency" 
+            value={travelFrequency}
+            onChange={(e) => setTravelFrequency(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="employeeGroup">Employee Group</label>
+          <input 
+            type="text" 
+            id="employeeGroup" 
+            name="employeeGroup" 
+            value={employeeGroup}
+            onChange={(e) => setEmployeeGroup(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="companyName">Company Name</label>
+          <input 
+            type="text" 
+            id="companyName" 
+            name="companyName" 
+            value={companyName}
+            onChange={(e) => setCompanyName(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="contactInformation">Contact Information</label>
+          <textarea 
+            id="contactInformation" 
+            name="contactInformation" 
+            rows="4" 
+            value={contactInformation}
+            onChange={(e) => setContactInformation(e.target.value)}
           />
         </div>
         <button type="submit">Next</button>

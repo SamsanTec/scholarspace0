@@ -1,7 +1,6 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './EditJob.css';
-import { UserContext } from './UserContext';
 
 const EditJob = ({ apiUrl }) => {
   const { id } = useParams();
@@ -11,7 +10,16 @@ const EditJob = ({ apiUrl }) => {
     numPeople: '',
     jobLocation: '',
     streetAddress: '',
-    companyDescription: ''
+    companyDescription: '',
+    competitionId: '',
+    internalClosingDate: '',
+    externalClosingDate: '',
+    payLevel: '',
+    employmentType: '',
+    travelFrequency: '',
+    employeeGroup: '',
+    companyName: '',
+    contactInformation: ''
   });
 
   useEffect(() => {
@@ -117,6 +125,95 @@ const EditJob = ({ apiUrl }) => {
             value={jobDetails.companyDescription}
             onChange={handleChange}
             required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="competitionId">Competition ID</label>
+          <input
+            type="text"
+            id="competitionId"
+            name="competitionId"
+            value={jobDetails.competitionId}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="internalClosingDate">Internal Closing Date</label>
+          <input
+            type="date"
+            id="internalClosingDate"
+            name="internalClosingDate"
+            value={jobDetails.internalClosingDate}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="externalClosingDate">External Closing Date</label>
+          <input
+            type="date"
+            id="externalClosingDate"
+            name="externalClosingDate"
+            value={jobDetails.externalClosingDate}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="payLevel">Pay Level</label>
+          <input
+            type="text"
+            id="payLevel"
+            name="payLevel"
+            value={jobDetails.payLevel}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="employmentType">Employment Type</label>
+          <input
+            type="text"
+            id="employmentType"
+            name="employmentType"
+            value={jobDetails.employmentType}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="travelFrequency">Travel Frequency</label>
+          <input
+            type="text"
+            id="travelFrequency"
+            name="travelFrequency"
+            value={jobDetails.travelFrequency}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="employeeGroup">Employee Group</label>
+          <input
+            type="text"
+            id="employeeGroup"
+            name="employeeGroup"
+            value={jobDetails.employeeGroup}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="companyName">Company Name</label>
+          <input
+            type="text"
+            id="companyName"
+            name="companyName"
+            value={jobDetails.companyName}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="contactInformation">Contact Information</label>
+          <textarea
+            id="contactInformation"
+            name="contactInformation"
+            value={jobDetails.contactInformation}
+            onChange={handleChange}
           />
         </div>
         <button type="submit">Save Changes</button>

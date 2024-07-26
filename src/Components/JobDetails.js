@@ -1,181 +1,86 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import './JobDetails.css';
 
-const JobDetails = () => {
-  const navigate = useNavigate();
+const JobDetails = ({ apiUrl }) => {
+  const { jobId } = useParams();
+  const [jobDetails, setJobDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handleJobDetailsSubmit = (e) => {
-    e.preventDefault();
-    navigate('/employer/pay-and-benefits');
+  useEffect(() => {
+    const fetchJobDetails = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/jobs/${jobId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch job details');
+        }
+        const result = await response.json();
+        setJobDetails(result);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching job details:', error);
+        setError(error.message);
+        setLoading(false);
+      }
+    };
+
+    fetchJobDetails();
+  }, [jobId, apiUrl]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  if (!jobDetails) {
+    return <div>No job details found.</div>;
+  }
+
+  const handleSave = () => {
+    alert('Job saved!');
+  };
+
+  const handleApply = () => {
+    alert('Application process started!');
   };
 
   return (
     <div className="job-details-container">
-      <h1>Job Details</h1>
-      <form onSubmit={handleJobDetailsSubmit}>
-        <div className="form-group">
-          <label htmlFor="jobTitle">Job title *</label>
-          <input type="text" id="jobTitle" name="jobTitle" required />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="numberOfPeople">Number of people to hire for this job *</label>
-          <select id="numberOfPeople" name="numberOfPeople" required>
-            <option value="">Select an option</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-          </select>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="jobLocationType">Job location type *</label>
-          <select id="jobLocationType" name="jobLocationType" required>
-            <option value="">Select an option</option>
-            <option value="in-person">In person—precise location</option>
-            <option value="remote">Remote</option>
-            <option value="hybrid">Hybrid</option>
-          </select>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="streetAddress">Street address *</label>
-          <input type="text" id="streetAddress" name="streetAddress" required />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="jobType">Job type *</label>
-          <div className="options-container">
-            <label className="option">
-              <input type="checkbox" name="jobType" value="full-time" />
-              Full-time
-            </label>
-            <label className="option">
-              <input type="checkbox" name="jobType" value="part-time" />
-              Part-time
-            </label>
-            <label className="option">
-              <input type="checkbox" name="jobType" value="permanent" />
-              Permanent
-            </label>
-            <label className="option">
-              <input type="checkbox" name="jobType" value="fixed-term" />
-              Fixed term contract
-            </label>
-            <label className="option">
-              <input type="checkbox" name="jobType" value="casual" />
-              Casual
-            </label>
-            <label className="option">
-              <input type="checkbox" name="jobType" value="seasonal" />
-              Seasonal
-            </label>
-            <label className="option">
-              <input type="checkbox" name="jobType" value="freelance" />
-              Freelance
-            </label>
-            <label className="option">
-              <input type="checkbox" name="jobType" value="apprenticeship" />
-              Apprenticeship
-            </label>
-            <label className="option">
-              <input type="checkbox" name="jobType" value="internship" />
-              Internship / Co-op
-            </label>
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="schedule">Schedule</label>
-          <div className="options-container">
-            <label className="option">
-              <input type="checkbox" name="schedule" value="monday-to-friday" />
-              Monday to Friday
-            </label>
-            <label className="option">
-              <input type="checkbox" name="schedule" value="weekends-as-needed" />
-              Weekends as needed
-            </label>
-            <label className="option">
-              <input type="checkbox" name="schedule" value="8-hour-shift" />
-              8 hour shift
-            </label>
-            <label className="option">
-              <input type="checkbox" name="schedule" value="day-shift" />
-              Day shift
-            </label>
-            <label className="option">
-              <input type="checkbox" name="schedule" value="evening-shift" />
-              Evening shift
-            </label>
-            <label className="option">
-              <input type="checkbox" name="schedule" value="night-shift" />
-              Night shift
-            </label>
-            <label className="option">
-              <input type="checkbox" name="schedule" value="morning-shift" />
-              Morning shift
-            </label>
-            <label className="option">
-              <input type="checkbox" name="schedule" value="overtime" />
-              Overtime
-            </label>
-            <label className="option">
-              <input type="checkbox" name="schedule" value="on-call" />
-              On call
-            </label>
-            <label className="option">
-              <input type="checkbox" name="schedule" value="no-weekends" />
-              No weekends
-            </label>
-            <label className="option">
-              <input type="checkbox" name="schedule" value="every-weekend" />
-              Every Weekend
-            </label>
-            <label className="option">
-              <input type="checkbox" name="schedule" value="holidays" />
-              Holidays
-            </label>
-            <label className="option">
-              <input type="checkbox" name="schedule" value="10-hour-shift" />
-              10 hour shift
-            </label>
-            <label className="option">
-              <input type="checkbox" name="schedule" value="12-hour-shift" />
-              12 hour shift
-            </label>
-            <label className="option">
-              <input type="checkbox" name="schedule" value="4-hour-shift" />
-              4 hour shift
-            </label>
-            <label className="option">
-              <input type="checkbox" name="schedule" value="weekends-only" />
-              Weekends only
-            </label>
-            <label className="option">
-              <input type="checkbox" name="schedule" value="other" />
-              Other
-            </label>
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label>Is there a planned start date for this job?</label>
+      <div className="job-header">
+        <div className="job-header-left">
+          <img src="/logo.png" alt="Company Logo" className="company-logo" />
           <div>
-            <label>
-              <input type="radio" name="plannedStartDate" value="yes" />
-              Yes
-            </label>
-            <label>
-              <input type="radio" name="plannedStartDate" value="no" />
-              No
-            </label>
+            <h1>{jobDetails.jobTitle}</h1>
+            <p>{jobDetails.companyName} - {jobDetails.jobLocation}</p>
+            <p>{jobDetails.jobType}</p>
           </div>
         </div>
-
-        <button type="submit">Next</button>
-      </form>
+        <div className="job-header-right">
+          <button className="save-button" onClick={handleSave}>Save</button>
+          <button className="apply-button" onClick={handleApply}>Apply</button>
+        </div>
+      </div>
+      <div className="job-description">
+        <h2>Job Description</h2>
+        <p><strong>Competition ID:</strong> {jobDetails.competitionId}</p>
+        <p><strong>Internal Closing Date:</strong> {jobDetails.internalClosingDate}</p>
+        <p><strong>External Closing Date:</strong> {jobDetails.externalClosingDate}</p>
+        <p><strong># of Openings:</strong> {jobDetails.numPeople}</p>
+        <p><strong>Pay Level:</strong> {jobDetails.payLevel}</p>
+        <p><strong>Employment Type:</strong> {jobDetails.employmentType}</p>
+        <p><strong>Workplace Type:</strong> {jobDetails.jobLocation}</p>
+        <p><strong>Travel Frequency:</strong> {jobDetails.travelFrequency}</p>
+        <p><strong>Employee Group:</strong> {jobDetails.employeeGroup}</p>
+        <p><strong>Company Description:</strong> {jobDetails.companyDescription}</p>
+      </div>
+      <div className="contact-information">
+        <h2>Contact Information</h2>
+        <p>{jobDetails.contactInformation}</p>
+      </div>
     </div>
   );
 };

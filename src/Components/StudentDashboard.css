@@ -1,3 +1,4 @@
+/* Components/StudentDashboard.css */
 .dashboard-container {
   width: 100%;
   max-width: 900px;
@@ -20,6 +21,7 @@
   background-color: #4a0f34; /* Change to the desired color */
   padding: 10px 20px;
   color: white;
+  border-radius: 10px;
 }
 
 .navbar-logo img {
@@ -36,6 +38,7 @@
   border: none;
   border-radius: 5px;
   margin-right: 5px;
+  outline: none;
 }
 
 .navbar-search .search-button {
@@ -90,4 +93,10 @@
 
 .dashboard-main p {
   font-size: 1.2rem;
+}
+
+.job-listings {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
 }

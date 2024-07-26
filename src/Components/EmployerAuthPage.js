@@ -15,7 +15,9 @@ const EmployerAuthPage = ({ apiUrl }) => {
   const handleAuth = async (e) => {
     e.preventDefault();
     const url = isLogin ? `${apiUrl}/login` : `${apiUrl}/signup`;
-    const data = isLogin ? { email, password } : { email, password, companyName, companyAddress, userType: 'employer' };
+    const data = isLogin
+      ? { email, password, userType: 'employer' }
+      : { email, password, companyName, companyAddress, userType: 'employer' };
 
     try {
       const response = await fetch(url, {
@@ -63,19 +65,18 @@ const EmployerAuthPage = ({ apiUrl }) => {
             required
           />
         </div>
-        {isLogin ? (
-          <div className="form-group">
-            <label htmlFor="password">Password:</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-        ) : (
+        <div className="form-group">
+          <label htmlFor="password">{isLogin ? 'Password:' : 'Create Password:'}</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        {!isLogin && (
           <>
             <div className="form-group">
               <label htmlFor="companyName">Company Name:</label>
@@ -96,17 +97,6 @@ const EmployerAuthPage = ({ apiUrl }) => {
                 name="companyAddress"
                 value={companyAddress}
                 onChange={(e) => setCompanyAddress(e.target.value)}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="password">Create Password:</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>

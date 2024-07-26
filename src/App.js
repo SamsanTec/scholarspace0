@@ -14,6 +14,7 @@ import JobDetails from './Components/JobDetails';
 import Courses from './Components/Courses';
 import CourseDetails from './Components/CourseDetails';
 import { UserProvider } from './Components/UserContext';
+import { JobProvider } from './Components/JobContext';
 import './App.css';
 
 const App = () => {
@@ -21,25 +22,27 @@ const App = () => {
 
   return (
     <UserProvider>
-      <Router>
-        <div className="App">
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/student" element={<StudentAuthPage apiUrl={apiUrl} />} />
-            <Route path="/admin" element={<AdminAuthPage apiUrl={apiUrl} />} />
-            <Route path="/employer" element={<EmployerAuthPage apiUrl={apiUrl} />} />
-            <Route path="/student-onboarding" element={<StudentOnboarding />} />
-            <Route path="/student/dashboard" element={<StudentDashboard />} />
-            <Route path="/jobs" element={<JobListings />} />
-            <Route path="/employer/dashboard" element={<EmployerDashboard apiUrl={apiUrl} />} />
-            <Route path="/employer/post-job" element={<PostJob apiUrl={apiUrl} />} />
-            <Route path="/employer/edit-job/:jobId" element={<EditJob apiUrl={apiUrl} />} />
-            <Route path="/employer/job-details" element={<JobDetails />} />
-            <Route path="/courses" element={<Courses />} />
-            <Route path="/courses/:courseId" element={<CourseDetails />} />
-          </Routes>
-        </div>
-      </Router>
+      <JobProvider>
+        <Router>
+          <div className="App">
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/student" element={<StudentAuthPage apiUrl={apiUrl} />} />
+              <Route path="/admin" element={<AdminAuthPage apiUrl={apiUrl} />} />
+              <Route path="/employer" element={<EmployerAuthPage apiUrl={apiUrl} />} />
+              <Route path="/student-onboarding" element={<StudentOnboarding />} />
+              <Route path="/student/dashboard" element={<StudentDashboard />} />
+              <Route path="/jobs" element={<JobListings />} />
+              <Route path="/employer/dashboard" element={<EmployerDashboard apiUrl={apiUrl} />} />
+              <Route path="/employer/post-job" element={<PostJob apiUrl={apiUrl} />} />
+              <Route path="/employer/edit-job/:jobId" element={<EditJob apiUrl={apiUrl} />} />
+              <Route path="/job-details/:jobId" element={<JobDetails apiUrl={apiUrl} />} />
+              <Route path="/courses" element={<Courses />} />
+              <Route path="/courses/:courseId" element={<CourseDetails />} />
+            </Routes>
+          </div>
+        </Router>
+      </JobProvider>
     </UserProvider>
   );
 }

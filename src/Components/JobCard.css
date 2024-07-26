@@ -1,0 +1,50 @@
+/* Components/JobCard.css */
+.job-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin: 16px;
+    padding: 16px;
+    width: 300px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s ease;
+  }
+  
+  .job-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .job-card-header img {
+    width: 100%;
+    height: auto;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 8px;
+  }
+  
+  .job-card-body {
+    padding: 8px 0;
+  }
+  
+  .job-card-body h3 {
+    margin: 0;
+    font-size: 1.2em;
+  }
+  
+  .job-card-body p {
+    margin: 4px 0;
+    color: #555;
+  }
+  
+  .job-card-footer {
+    text-align: right;
+  }
+  
+  .job-card-link {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+  }
+  
+  .job-card-link:hover {
+    text-decoration: underline;
+  }
+  

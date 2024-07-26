@@ -28,10 +28,10 @@ db.connect((err) => {
 
 // Route to handle login
 app.post('/login', (req, res) => {
-    const { email, password } = req.body;
-    const query = 'SELECT id, userType FROM users WHERE email = ? AND password = ?';
+    const { email, password, userType } = req.body;
+    const query = 'SELECT id, userType FROM users WHERE email = ? AND password = ? AND userType = ?';
 
-    db.execute(query, [email, password], (err, results) => {
+    db.execute(query, [email, password, userType], (err, results) => {
         if (err) {
             console.error('Error fetching data: ' + err.stack);
             res.status(500).send('Error logging in.');
@@ -41,7 +41,7 @@ app.post('/login', (req, res) => {
             const { id, userType } = results[0];
             res.json({ userId: id, userType });
         } else {
-            res.status(401).send('Invalid credentials.');
+            res.status(401).send('Invalid credentials or user type.');
         }
     });
 });
@@ -94,13 +94,16 @@ app.post('/signup', (req, res) => {
 
 // Route to handle job posting
 app.post('/post-job', (req, res) => {
-    const { jobTitle, numPeople, jobLocation, streetAddress, companyDescription, userId } = req.body;
+    const { jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, employeeGroup, companyName, contactInformation, userId } = req.body;
 
-    const query = 'INSERT INTO jobs (jobTitle, numPeople, jobLocation, streetAddress, companyDescription, user_id) VALUES (?, ?, ?, ?, ?, ?)';
+    const query = `
+        INSERT INTO jobs (jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, employeeGroup, companyName, contactInformation, user_id) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
 
-    db.execute(query, [jobTitle, numPeople, jobLocation, streetAddress, companyDescription, userId], (err, results) => {
+    db.execute(query, [jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, employeeGroup, companyName, contactInformation, userId], (err, results) => {
         if (err) {
-            console.error('Error inserting job data: ' + err.stack);
+            console.error('Error inserting job data:', err.stack);
             return res.status(500).json({ message: 'Error posting job.' });
         }
 
@@ -109,7 +112,7 @@ app.post('/post-job', (req, res) => {
         const selectQuery = 'SELECT * FROM jobs WHERE id = ?';
         db.execute(selectQuery, [jobId], (err, jobResults) => {
             if (err) {
-                console.error('Error fetching job data: ' + err.stack);
+                console.error('Error fetching job data:', err.stack);
                 return res.status(500).json({ message: 'Error fetching job data.' });
             }
             res.json({ message: 'Job posted successfully!', job: jobResults[0] });
@@ -118,29 +121,63 @@ app.post('/post-job', (req, res) => {
 });
 
 // Route to handle fetching jobs for the logged-in employer
-app.get('/jobs/:userId', (req, res) => {
+app.get('/jobs/employer/:userId', (req, res) => {
     const userId = req.params.userId;
 
     const query = 'SELECT * FROM jobs WHERE user_id = ?';
     db.execute(query, [userId], (err, results) => {
         if (err) {
-            console.error('Error fetching jobs: ' + err.stack);
+            console.error('Error fetching jobs:', err.stack);
             return res.status(500).json({ message: 'Error fetching jobs.' });
         }
         res.json(results);
     });
 });
 
+// Route to handle fetching all jobs
+app.get('/jobs', (req, res) => {
+    const query = 'SELECT * FROM jobs';
+    db.execute(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching jobs:', err.stack);
+            return res.status(500).json({ message: 'Error fetching jobs.' });
+        }
+        res.json(results);
+    });
+});
+
+// Route to handle fetching job details
+app.get('/jobs/:jobId', (req, res) => {
+    const { jobId } = req.params;
+
+    const query = 'SELECT * FROM jobs WHERE id = ?';
+    db.execute(query, [jobId], (err, results) => {
+        if (err) {
+            console.error('Error fetching job data:', err.stack);
+            return res.status(500).json({ message: 'Error fetching job data.' });
+        }
+        if (results.length > 0) {
+            res.json(results[0]);
+        } else {
+            res.status(404).json({ message: 'Job not found.' });
+        }
+    });
+});
+
 // Route to handle updating job
 app.put('/jobs/:jobId', (req, res) => {
     const { jobId } = req.params;
-    const { jobTitle, numPeople, jobLocation, streetAddress, companyDescription } = req.body;
+    const { jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, employeeGroup, companyName, contactInformation } = req.body;
 
-    const query = 'UPDATE jobs SET jobTitle = ?, numPeople = ?, jobLocation = ?, streetAddress = ?, companyDescription = ? WHERE id = ?';
+    const query = `
+        UPDATE jobs 
+        SET jobTitle = ?, numPeople = ?, jobLocation = ?, streetAddress = ?, companyDescription = ?, competitionId = ?, internalClosingDate = ?, externalClosingDate = ?, payLevel = ?, employmentType = ?, travelFrequency = ?, employeeGroup = ?, companyName = ?, contactInformation = ? 
+        WHERE id = ?
+    `;
 
-    db.execute(query, [jobTitle, numPeople, jobLocation, streetAddress, companyDescription, jobId], (err) => {
+    db.execute(query, [jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, employeeGroup, companyName, contactInformation, jobId], (err) => {
         if (err) {
-            console.error('Error updating job: ' + err.stack);
+            console.error('Error updating job:', err.stack);
             return res.status(500).json({ message: 'Error updating job.' });
         }
         res.json({ message: 'Job updated successfully!' });
@@ -155,7 +192,7 @@ app.delete('/jobs/:jobId', (req, res) => {
 
     db.execute(query, [jobId], (err) => {
         if (err) {
-            console.error('Error deleting job: ' + err.stack);
+            console.error('Error deleting job:', err.stack);
             return res.status(500).json({ message: 'Error deleting job.' });
         }
         res.json({ message: 'Job deleted successfully!' });

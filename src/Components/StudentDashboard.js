@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
+import { JobContext } from './JobContext';
+import JobCard from './JobCard';
 import { Link } from 'react-router-dom';
 import './StudentDashboard.css';
 
 const StudentDashboard = () => {
+  const { jobs, fetchJobs } = useContext(JobContext);
+
+  useEffect(() => {
+    fetchJobs();
+  }, [fetchJobs]);
+
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
@@ -28,8 +36,12 @@ const StudentDashboard = () => {
         </nav>
       </header>
       <main className="dashboard-main">
-        <h2>Dashboard</h2>
-        <p>Here you can find your saved jobs, recommended courses, and more.</p>
+        <h3>Job Listings</h3>
+        <div className="job-listings">
+          {jobs.map((job) => (
+            <JobCard key={job.id} job={job} />
+          ))}
+        </div>
       </main>
     </div>
   );

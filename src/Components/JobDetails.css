@@ -1,75 +1,81 @@
-/* Navbar Styles */
-.navbar {
+/* JobDetails.css */
+
+.job-details-container {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.job-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #002855;
+  margin-bottom: 20px;
+}
+
+.job-header-left {
+  display: flex;
+  align-items: center;
+}
+
+.company-logo {
+  width: 100px;
+  height: auto;
+  margin-right: 20px;
+}
+
+.job-header-left h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.job-header-left p {
+  margin: 4px 0;
+  color: #666;
+}
+
+.job-header-right {
+  display: flex;
+  gap: 10px;
+}
+
+.save-button,
+.apply-button {
   padding: 10px 20px;
-  color: white;
-}
-
-.navbar-logo {
-  height: 40px;
-}
-
-.search-bar {
-  padding: 5px;
-  border-radius: 5px;
   border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
-.nav-links {
-  display: flex;
-  align-items: center;
+.save-button {
+  background-color: #e0e0e0;
+  color: #333;
 }
 
-.nav-links a {
-  color: white;
-  margin: 0 15px;
-  text-decoration: none;
+.apply-button {
+  background-color: #007bff;
+  color: #fff;
 }
 
-.profile-icon {
-  background-color: #ffffff;
-  color: #002855;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
-}
-
-/* Course Details Content Styles */
-.course-details-page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: #f9f9f9;
-  min-height: 100vh;
-}
-
-.course-details-content {
-  width: 80%;
-  max-width: 1200px;
+.job-description,
+.contact-information {
   margin-top: 20px;
 }
 
-.course-details-content ul {
-  list-style-type: none;
-  padding: 0;
+.job-description h2,
+.contact-information h2 {
+  margin-bottom: 10px;
 }
 
-.course-details-content li {
-  margin: 10px 0;
+.job-description p,
+.contact-information p {
+  margin: 8px 0;
 }
 
-.course-details-content a {
-  color: #002855;
-  text-decoration: none;
-}
-
-.course-details-content a:hover {
-  text-decoration: underline;
+.job-description p strong {
+  display: block;
+  font-weight: bold;
 }

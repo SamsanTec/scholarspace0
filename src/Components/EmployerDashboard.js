@@ -6,15 +6,22 @@ import './EmployerDashboard.css';
 const EmployerDashboard = ({ apiUrl }) => {
   const { user } = useContext(UserContext);
   const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const response = await fetch(`${apiUrl}/jobs/${user.userId}`);
+        const response = await fetch(`${apiUrl}/jobs/employer/${user.userId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch jobs');
+        }
         const data = await response.json();
         setJobs(data);
       } catch (error) {
-        console.error('Error fetching jobs:', error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -23,14 +30,26 @@ const EmployerDashboard = ({ apiUrl }) => {
 
   const handleDelete = async (jobId) => {
     try {
-      await fetch(`${apiUrl}/jobs/${jobId}`, {
+      const response = await fetch(`${apiUrl}/jobs/${jobId}`, {
         method: 'DELETE',
       });
+      if (!response.ok) {
+        throw new Error('Failed to delete job');
+      }
       setJobs(jobs.filter(job => job.id !== jobId));
     } catch (error) {
       console.error('Error deleting job:', error);
+      alert('An error occurred while deleting the job. Please try again.');
     }
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className="dashboard-container">
@@ -45,7 +64,9 @@ const EmployerDashboard = ({ apiUrl }) => {
             <Link to="/employer/provide-feedback">Provide Feedback</Link>
           </div>
           <div className="navbar-profile">
-            <div className="profile-initials">{user.companyName && user.companyName.match(/\b(\w)/g).join('')}</div>
+            <div className="profile-initials">
+              {user.companyName && user.companyName.match(/\b(\w)/g).join('')}
+            </div>
           </div>
         </nav>
       </header>
