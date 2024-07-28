@@ -3,11 +3,22 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './Components/LandingPage';
 import StudentAuthPage from './Components/StudentAuthPage';
 import AdminAuthPage from './Components/AdminAuthPage';
+import ManageCourses from './Components/ManageCourses';
+import ViewCourses from './Components/ViewCourses';
+import AddCourse from './Components/AddCourse';
+import EditCourse from './Components/EditCourse';
+import ManageUsers from './Components/ManageUsers';
+import AddUser from './Components/AddUser';
+import ViewUsers from './Components/ViewUsers';
+import EditUser from './Components/EditUser';
+import Reports from './Components/Reports';
+import Settings from './Components/Settings';
 import EmployerAuthPage from './Components/EmployerAuthPage';
 import StudentOnboarding from './Components/StudentOnboarding';
 import StudentDashboard from './Components/StudentDashboard';
 import JobListings from './Components/JobListings';
 import EmployerDashboard from './Components/EmployerDashboard';
+import AdminDashboard from './Components/AdminDashboard';
 import PostJob from './Components/PostJob';
 import EditJob from './Components/EditJob';
 import JobDetails from './Components/JobDetails';
@@ -37,6 +48,17 @@ const App = () => {
               <Route path="/student/dashboard" element={<StudentDashboard />} />
               <Route path="/jobs" element={<JobListings />} />
               <Route path="/employer/dashboard" element={<EmployerDashboard apiUrl={apiUrl} />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard apiUrl={apiUrl} />} />
+              <Route path="/admin/manage-courses" element={<ManageCourses />} />
+              <Route path="/admin/view-courses" element={<ViewCourses />} />
+              <Route path="/admin/add-course" element={<AddCourse />} />
+              <Route path="/admin/edit-course" element={<EditCourse />} />
+              <Route path="/admin/manage-users" element={<ManageUsers />} />
+              <Route path="/admin/add-user" element={<AddUser />} />
+              <Route path="/admin/view-users" element={<ViewUsers />} />
+              <Route path="/admin/edit-user" element={<EditUser />} />
+              <Route path="/admin/reports" element={<Reports />} />
+              <Route path="/admin/settings" element={<Settings />} />
               <Route path="/employer/post-job" element={<PostJob apiUrl={apiUrl} />} />
               <Route path="/employer/edit-job/:jobId" element={<EditJob apiUrl={apiUrl} />} />
               <Route path="/job-details/:jobId" element={<JobDetails apiUrl={apiUrl} />} />

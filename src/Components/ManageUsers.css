@@ -1,0 +1,37 @@
+/* ManageUsers.css */
+
+.container {
+    margin: 0 auto;
+    max-width: 800px;
+    padding: 20px;
+  }
+  
+  .header {
+    background-color: #003366;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    border-radius: 5px;
+  }
+  
+  .user-options {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+  }
+  
+  .user-button {
+    padding: 20px;
+    background-color: #003366;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    text-align: center;
+    width: 150px;
+  }
+  
+  .user-button:hover {
+    background-color: #00509e;
+  }
+  
+    
