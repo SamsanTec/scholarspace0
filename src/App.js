@@ -11,7 +11,10 @@ import EmployerDashboard from './Components/EmployerDashboard';
 import PostJob from './Components/PostJob';
 import EditJob from './Components/EditJob';
 import JobDetails from './Components/JobDetails';
+import ViewApplications from './Components/ViewApplications';
+import ApplicationDetails from './Components/ApplicationDetails';
 import Courses from './Components/Courses';
+import ApplyJobForm from './Components/ApplyJobForm'; 
 import CourseDetails from './Components/CourseDetails';
 import { UserProvider } from './Components/UserContext';
 import { JobProvider } from './Components/JobContext';
@@ -37,6 +40,9 @@ const App = () => {
               <Route path="/employer/post-job" element={<PostJob apiUrl={apiUrl} />} />
               <Route path="/employer/edit-job/:jobId" element={<EditJob apiUrl={apiUrl} />} />
               <Route path="/job-details/:jobId" element={<JobDetails apiUrl={apiUrl} />} />
+              <Route path="/apply-job/:jobId" element={<ApplyJobForm apiUrl={apiUrl} />} />
+              <Route path="/employer/view-applications" element={<ViewApplications apiUrl={apiUrl} />} />
+            <Route path="/employer/application-details/:applicationId" element={<ApplicationDetails apiUrl={apiUrl} />} />
               <Route path="/courses" element={<Courses />} />
               <Route path="/courses/:courseId" element={<CourseDetails />} />
             </Routes>

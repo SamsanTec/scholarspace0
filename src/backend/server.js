@@ -3,6 +3,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2');
 const cors = require('cors');
+const multer = require('multer');
+const { BlobServiceClient, StorageSharedKeyCredential } = require('@azure/storage-blob');
+const { v1: uuidv1 } = require('uuid');
 
 const app = express();
 const port = process.env.SERVER_PORT || 3000;
@@ -10,7 +13,6 @@ const port = process.env.SERVER_PORT || 3000;
 app.use(bodyParser.json());
 app.use(cors());
 
-// Database connection
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -26,7 +28,25 @@ db.connect((err) => {
     console.log('Connected to database.');
 });
 
-// Route to handle login
+const AZURE_STORAGE_ACCOUNT_NAME = process.env.AZURE_STORAGE_ACCOUNT_NAME;
+const AZURE_STORAGE_ACCOUNT_KEY = process.env.AZURE_STORAGE_ACCOUNT_KEY;
+const AZURE_STORAGE_CONTAINER_NAME = process.env.AZURE_STORAGE_CONTAINER_NAME;
+
+const blobServiceClient = new BlobServiceClient(
+    `https://${AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net`,
+    new StorageSharedKeyCredential(AZURE_STORAGE_ACCOUNT_NAME, AZURE_STORAGE_ACCOUNT_KEY)
+);
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+async function uploadFileToAzure(fileBuffer, fileName) {
+    const containerClient = blobServiceClient.getContainerClient(AZURE_STORAGE_CONTAINER_NAME);
+    const blobName = `${uuidv1()}-${fileName}`;
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+    await blockBlobClient.uploadData(fileBuffer);
+    return blockBlobClient.url;
+}
 app.post('/login', (req, res) => {
     const { email, password, userType } = req.body;
     const query = 'SELECT id, userType FROM users WHERE email = ? AND password = ? AND userType = ?';
@@ -46,7 +66,6 @@ app.post('/login', (req, res) => {
     });
 });
 
-// Route to handle sign up
 app.post('/signup', (req, res) => {
     const { email, password, userType, fullName, studentNumber, companyName, companyAddress, adminName } = req.body;
     const query = 'INSERT INTO users (email, password, userType) VALUES (?, ?, ?)';
@@ -92,7 +111,6 @@ app.post('/signup', (req, res) => {
     });
 });
 
-// Route to handle job posting
 app.post('/post-job', (req, res) => {
     const { jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, employeeGroup, companyName, contactInformation, userId } = req.body;
 
@@ -198,6 +216,79 @@ app.delete('/jobs/:jobId', (req, res) => {
         res.json({ message: 'Job deleted successfully!' });
     });
 });
+
+// Route to handle job applications
+app.post('/apply-job', upload.fields([{ name: 'resume' }, { name: 'coverLetter' }]), async (req, res) => {
+    const { jobId, userId, cgpa, availability } = req.body;
+    const resume = req.files['resume'][0];
+    const coverLetter = req.files['coverLetter'][0];
+
+    try {
+        const resumeUrl = await uploadFileToAzure(resume.buffer, resume.originalname);
+        const coverLetterUrl = await uploadFileToAzure(coverLetter.buffer, coverLetter.originalname);
+
+        const query = 'INSERT INTO applications (jobId, userId, resumePath, coverLetterPath, cgpa, availability) VALUES (?, ?, ?, ?, ?, ?)';
+
+        db.execute(query, [jobId, userId, resumeUrl, coverLetterUrl, cgpa, availability], (err, results) => {
+            if (err) {
+                console.error('Error inserting application data:', err.stack);
+                return res.status(500).json({ message: 'Error applying for job.' });
+            }
+            res.json({ message: 'Application submitted successfully!' });
+        });
+    } catch (error) {
+        console.error('Error uploading files to Azure Blob Storage:', error);
+        res.status(500).json({ message: 'Error uploading files.' });
+    }
+});
+
+// Route to handle fetching job applications for an employer
+app.get('/applications/:employerId', (req, res) => {
+    const employerId = req.params.employerId;
+
+    const query = `
+        SELECT applications.*, jobs.jobTitle, users.email 
+        FROM applications 
+        JOIN jobs ON applications.jobId = jobs.id 
+        JOIN users ON applications.userId = users.id 
+        WHERE jobs.user_id = ?
+    `;
+
+    db.execute(query, [employerId], (err, results) => {
+        if (err) {
+            console.error('Error fetching applications:', err.stack);
+            return res.status(500).json({ message: 'Error fetching applications.' });
+        }
+        res.json(results);
+    });
+});
+
+// Route to handle fetching application details
+app.get('/applications/details/:applicationId', (req, res) => {
+    const { applicationId } = req.params;
+
+    const query = `
+        SELECT applications.*, users.email, jobs.jobTitle 
+        FROM applications 
+        JOIN users ON applications.userId = users.id 
+        JOIN jobs ON applications.jobId = jobs.id 
+        WHERE applications.id = ?
+    `;
+
+    db.execute(query, [applicationId], (err, results) => {
+        if (err) {
+            console.error('Error fetching application details:', err.stack);
+            return res.status(500).json({ message: 'Error fetching application details.' });
+        }
+        if (results.length > 0) {
+            res.json(results[0]);
+        } else {
+            res.status(404).json({ message: 'Application not found.' });
+        }
+    });
+});
+
+
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

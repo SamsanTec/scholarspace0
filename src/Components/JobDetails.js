@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import './JobDetails.css';
 
 const JobDetails = ({ apiUrl }) => {
@@ -7,6 +7,7 @@ const JobDetails = ({ apiUrl }) => {
   const [jobDetails, setJobDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchJobDetails = async () => {
@@ -45,7 +46,7 @@ const JobDetails = ({ apiUrl }) => {
   };
 
   const handleApply = () => {
-    alert('Application process started!');
+    navigate(`/apply-job/${jobId}`);
   };
 
   return (
