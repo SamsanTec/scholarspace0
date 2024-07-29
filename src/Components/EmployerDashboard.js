@@ -1,6 +1,8 @@
+// EmployerDashboard.js
 import React, { useEffect, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { UserContext } from './UserContext';
+import NavbarEmployer from './NavbarEmployer';
 import './EmployerDashboard.css';
 
 const EmployerDashboard = ({ apiUrl }) => {
@@ -54,21 +56,7 @@ const EmployerDashboard = ({ apiUrl }) => {
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
-        <nav className="navbar">
-          <div className="navbar-logo">
-            <img src="/path/to/logo.png" alt="Career Connection Logo" />
-          </div>
-          <div className="navbar-links">
-            <Link to="/employer/post-job">Post Job</Link>
-            <Link to="/employer/view-applications">View Applications</Link>
-            <Link to="/employer/provide-feedback">Provide Feedback</Link>
-          </div>
-          <div className="navbar-profile">
-            <div className="profile-initials">
-              {user.companyName && user.companyName.match(/\b(\w)/g).join('')}
-            </div>
-          </div>
-        </nav>
+        <NavbarEmployer />
       </header>
       <main className="dashboard-main">
         <h2>Employer Dashboard</h2>

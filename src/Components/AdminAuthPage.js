@@ -28,6 +28,8 @@ const AdminAuthPage = ({ apiUrl }) => {
         setUser({
           userId: result.userId,
           userType: 'admin',
+          name: result.name,
+          initials: result.name.match(/\b(\w)/g).join(''),
         });
         navigate('/admin/dashboard');
       } else {

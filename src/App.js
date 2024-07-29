@@ -26,9 +26,14 @@ import ViewApplications from './Components/ViewApplications';
 import ApplicationDetails from './Components/ApplicationDetails';
 import Courses from './Components/Courses';
 import ApplyJobForm from './Components/ApplyJobForm'; 
+import EmployerList from './Components/EmployerList';
+import EmployerDetails from './Components/EmployerDetails';
 import CourseDetails from './Components/CourseDetails';
 import { UserProvider } from './Components/UserContext';
 import { JobProvider } from './Components/JobContext';
+import NavbarStudent from './Components/NavbarStudent';
+import NavbarEmployer from './Components/NavbarEmployer';
+import NavbarAdmin from './Components/NavbarAdmin';
 import './App.css';
 
 const App = () => {
@@ -64,7 +69,9 @@ const App = () => {
               <Route path="/job-details/:jobId" element={<JobDetails apiUrl={apiUrl} />} />
               <Route path="/apply-job/:jobId" element={<ApplyJobForm apiUrl={apiUrl} />} />
               <Route path="/employer/view-applications" element={<ViewApplications apiUrl={apiUrl} />} />
-            <Route path="/employer/application-details/:applicationId" element={<ApplicationDetails apiUrl={apiUrl} />} />
+              <Route path="/employer/application-details/:applicationId" element={<ApplicationDetails apiUrl={apiUrl} />} />
+              <Route path="/employers" element={<EmployerList apiUrl={apiUrl} />} />
+              <Route path="/employers/:employerId" element={<EmployerDetails apiUrl={apiUrl} />} />
               <Route path="/courses" element={<Courses />} />
               <Route path="/courses/:courseId" element={<CourseDetails />} />
             </Routes>

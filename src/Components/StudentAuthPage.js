@@ -1,6 +1,7 @@
+// src/components/StudentAuthPage.js
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserContext } from './UserContext'; // Ensure this path is correct
+import { UserContext } from './UserContext';
 import './StudentAuthPage.css';
 
 const StudentAuthPage = ({ apiUrl }) => {
@@ -31,6 +32,7 @@ const StudentAuthPage = ({ apiUrl }) => {
         setUser({
           userId: result.userId,
           userType: 'student',
+          name: result.name,  // Ensure this is passed correctly
         });
         navigate('/student/dashboard');
       } else {
@@ -63,19 +65,18 @@ const StudentAuthPage = ({ apiUrl }) => {
             required
           />
         </div>
-        {isLogin ? (
-          <div className="form-group">
-            <label htmlFor="password">Password:</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-        ) : (
+        <div className="form-group">
+          <label htmlFor="password">{isLogin ? 'Password:' : 'Create Password:'}</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        {!isLogin && (
           <>
             <div className="form-group">
               <label htmlFor="fullName">Full Name:</label>
@@ -96,17 +97,6 @@ const StudentAuthPage = ({ apiUrl }) => {
                 name="studentNumber"
                 value={studentNumber}
                 onChange={(e) => setStudentNumber(e.target.value)}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="password">Create Password:</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>

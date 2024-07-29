@@ -33,6 +33,8 @@ const EmployerAuthPage = ({ apiUrl }) => {
         setUser({
           userId: result.userId,
           userType: 'employer',
+          name: result.name,
+          initials: result.name.match(/\b(\w)/g).join(''),
         });
         navigate('/employer/dashboard');
       } else {

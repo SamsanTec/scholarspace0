@@ -49,7 +49,7 @@ async function uploadFileToAzure(fileBuffer, fileName) {
 }
 app.post('/login', (req, res) => {
     const { email, password, userType } = req.body;
-    const query = 'SELECT id, userType FROM users WHERE email = ? AND password = ? AND userType = ?';
+    const query = 'SELECT users.id, userType, fullName, companyName, adminName FROM users LEFT JOIN students ON users.id = students.user_id LEFT JOIN employers ON users.id = employers.user_id LEFT JOIN admins ON users.id = admins.user_id WHERE email = ? AND password = ? AND userType = ?';
 
     db.execute(query, [email, password, userType], (err, results) => {
         if (err) {
@@ -58,8 +58,9 @@ app.post('/login', (req, res) => {
             return;
         }
         if (results.length > 0) {
-            const { id, userType } = results[0];
-            res.json({ userId: id, userType });
+            const { id, userType, fullName, companyName, adminName } = results[0];
+            const name = fullName || companyName || adminName;
+            res.json({ userId: id, userType, name });
         } else {
             res.status(401).send('Invalid credentials or user type.');
         }
@@ -67,7 +68,7 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/signup', (req, res) => {
-    const { email, password, userType, fullName, studentNumber, companyName, companyAddress, adminName } = req.body;
+    const { email, password, userType, fullName, studentNumber, companyName, companyAddress } = req.body;
     const query = 'INSERT INTO users (email, password, userType) VALUES (?, ?, ?)';
 
     db.execute(query, [email, password, userType], (err, results) => {
@@ -85,7 +86,7 @@ app.post('/signup', (req, res) => {
                     res.status(500).send('Error signing up.');
                     return;
                 }
-                res.json({ userId, userType });
+                res.json({ userId, userType, fullName });
             });
         } else if (userType === 'employer') {
             const employerQuery = 'INSERT INTO employers (user_id, companyName, companyAddress) VALUES (?, ?, ?)';
@@ -96,16 +97,6 @@ app.post('/signup', (req, res) => {
                     return;
                 }
                 res.json({ userId, userType, companyName });
-            });
-        } else if (userType === 'admin') {
-            const adminQuery = 'INSERT INTO admins (user_id, adminName) VALUES (?, ?)';
-            db.execute(adminQuery, [userId, adminName], (err) => {
-                if (err) {
-                    console.error('Error inserting admin data: ' + err.stack);
-                    res.status(500).send('Error signing up.');
-                    return;
-                }
-                res.json({ userId, userType });
             });
         }
     });
@@ -125,7 +116,6 @@ app.post('/post-job', (req, res) => {
             return res.status(500).json({ message: 'Error posting job.' });
         }
 
-        // Return the newly inserted job
         const jobId = results.insertId;
         const selectQuery = 'SELECT * FROM jobs WHERE id = ?';
         db.execute(selectQuery, [jobId], (err, jobResults) => {
@@ -138,7 +128,6 @@ app.post('/post-job', (req, res) => {
     });
 });
 
-// Route to handle fetching jobs for the logged-in employer
 app.get('/jobs/employer/:userId', (req, res) => {
     const userId = req.params.userId;
 
@@ -152,7 +141,6 @@ app.get('/jobs/employer/:userId', (req, res) => {
     });
 });
 
-// Route to handle fetching all jobs
 app.get('/jobs', (req, res) => {
     const query = 'SELECT * FROM jobs';
     db.execute(query, (err, results) => {
@@ -164,7 +152,6 @@ app.get('/jobs', (req, res) => {
     });
 });
 
-// Route to handle fetching job details
 app.get('/jobs/:jobId', (req, res) => {
     const { jobId } = req.params;
 
@@ -182,7 +169,6 @@ app.get('/jobs/:jobId', (req, res) => {
     });
 });
 
-// Route to handle updating job
 app.put('/jobs/:jobId', (req, res) => {
     const { jobId } = req.params;
     const { jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, employeeGroup, companyName, contactInformation } = req.body;
@@ -202,7 +188,6 @@ app.put('/jobs/:jobId', (req, res) => {
     });
 });
 
-// Route to handle deleting job
 app.delete('/jobs/:jobId', (req, res) => {
     const { jobId } = req.params;
 
@@ -288,7 +273,79 @@ app.get('/applications/details/:applicationId', (req, res) => {
     });
 });
 
+// Route to fetch all employers
+app.get('/employers', (req, res) => {
+    const query = `
+        SELECT employers.*, users.email 
+        FROM employers 
+        JOIN users ON employers.user_id = users.id
+    `;
 
+    db.execute(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching employers:', err.stack);
+            return res.status(500).json({ message: 'Error fetching employers.' });
+        }
+        res.json(results);
+    });
+});
+
+// Route to fetch employer details including email from users table
+app.get('/employers/:employerId', (req, res) => {
+    const { employerId } = req.params;
+    const query = `
+        SELECT employers.*, users.email 
+        FROM employers 
+        JOIN users ON employers.user_id = users.id 
+        WHERE employers.user_id = ?
+    `;
+
+    db.execute(query, [employerId], (err, results) => {
+        if (err) {
+            console.error('Error fetching employer details:', err.stack);
+            return res.status(500).json({ message: 'Error fetching employer details.' });
+        }
+        if (results.length > 0) {
+            res.json(results[0]);
+        } else {
+            res.status(404).json({ message: 'Employer not found.' });
+        }
+    });
+});
+
+// Route to fetch jobs posted by a specific employer
+app.get('/employers/:employerId/jobs', (req, res) => {
+    const { employerId } = req.params;
+    const query = 'SELECT * FROM jobs WHERE user_id = ?';
+
+    db.execute(query, [employerId], (err, results) => {
+        if (err) {
+            console.error('Error fetching jobs:', err.stack);
+            return res.status(500).json({ message: 'Error fetching jobs.' });
+        }
+        res.json(results);
+    });
+});
+
+app.get('/profile/:userId', (req, res) => {
+    const { userId } = req.params;
+    const query = 'SELECT users.id, users.userType, students.fullName, employers.companyName, admins.adminName FROM users LEFT JOIN students ON users.id = students.user_id LEFT JOIN employers ON users.id = employers.user_id LEFT JOIN admins ON users.id = admins.user_id WHERE users.id = ?';
+
+    db.execute(query, [userId], (err, results) => {
+        if (err) {
+            console.error('Error fetching profile data: ' + err.stack);
+            res.status(500).send('Error fetching profile data.');
+            return;
+        }
+        if (results.length > 0) {
+            const { id, userType, fullName, companyName, adminName } = results[0];
+            const name = fullName || companyName || adminName;
+            res.json({ userId: id, userType, name });
+        } else {
+            res.status(404).send('User not found.');
+        }
+    });
+});
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
