@@ -32,15 +32,13 @@ const EmployerAuthPage = ({ apiUrl }) => {
         const result = await response.json();
         setUser({
           userId: result.userId,
-          userType: 'employer',
-          name: result.name,
-          initials: result.name.match(/\b(\w)/g).join(''),
+          userType: 'employer'
         });
         navigate('/employer/dashboard');
       } else {
         const errorMessage = await response.text();
         console.error('Error:', errorMessage);
-        alert(errorMessage);
+        alert(errorMessage); // You might want to improve this alert for better user experience
       }
     } catch (error) {
       console.error('Error:', error);

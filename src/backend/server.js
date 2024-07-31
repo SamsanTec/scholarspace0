@@ -6,7 +6,7 @@ const cors = require('cors');
 const multer = require('multer');
 const { BlobServiceClient, StorageSharedKeyCredential } = require('@azure/storage-blob');
 const { v1: uuidv1 } = require('uuid');
-
+const fs = require('fs');
 const app = express();
 const port = process.env.SERVER_PORT || 3000;
 
@@ -15,9 +15,14 @@ app.use(cors());
 
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
+    database: process.env.DB_NAME,
+    // ssl: {
+    //     ca: fs.readFileSync(process.env.DB_SSL_CA),
+    //     rejectUnauthorized: true // Ensure that the server certificate is verified
+    //   }
 });
 
 db.connect((err) => {
