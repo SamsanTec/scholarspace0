@@ -18,9 +18,14 @@ const PostJob = ({ apiUrl }) => {
   const [payLevel, setPayLevel] = useState('');
   const [employmentType, setEmploymentType] = useState('');
   const [travelFrequency, setTravelFrequency] = useState('');
-  const [employeeGroup, setEmployeeGroup] = useState('');
+  const [jobCategory, setJobCategory] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [contactInformation, setContactInformation] = useState('');
+
+  const handlePayLevelChange = (e) => {
+    const value = Math.max(15, Math.min(50, Number(e.target.value)));
+    setPayLevel(value);
+  };
 
   const handleNext = async (e) => {
     e.preventDefault();
@@ -38,7 +43,7 @@ const PostJob = ({ apiUrl }) => {
       payLevel,
       employmentType,
       travelFrequency,
-      employeeGroup,
+      jobCategory,
       companyName,
       contactInformation,
     };
@@ -164,44 +169,69 @@ const PostJob = ({ apiUrl }) => {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="payLevel">Pay Level</label>
+          <label htmlFor="payLevel">Pay Level *</label>
           <input 
-            type="text" 
+            type="number" 
             id="payLevel" 
             name="payLevel" 
             value={payLevel}
-            onChange={(e) => setPayLevel(e.target.value)}
+            onChange={handlePayLevelChange}
+            min="15"
+            max="50"
+            required
           />
         </div>
         <div className="form-group">
-          <label htmlFor="employmentType">Employment Type</label>
-          <input 
-            type="text" 
+          <label htmlFor="employmentType">Employment Type *</label>
+          <select 
             id="employmentType" 
             name="employmentType" 
             value={employmentType}
             onChange={(e) => setEmploymentType(e.target.value)}
-          />
+            required
+          >
+            <option value="">Select an option</option>
+            <option value="partTime">Part Time</option>
+            <option value="fullTime">Full Time</option>
+            <option value="casual">Casual</option>
+            <option value="onCall">On Call</option>
+          </select>
         </div>
         <div className="form-group">
-          <label htmlFor="travelFrequency">Travel Frequency</label>
-          <input 
-            type="text" 
+          <label htmlFor="travelFrequency">Travel Frequency *</label>
+          <select 
             id="travelFrequency" 
             name="travelFrequency" 
             value={travelFrequency}
             onChange={(e) => setTravelFrequency(e.target.value)}
-          />
+            required
+          >
+            <option value="">Select an option</option>
+            {[...Array(7).keys()].map(day => (
+              <option key={day + 1} value={`${day + 1} days per week`}>{day + 1} days per week</option>
+            ))}
+          </select>
         </div>
         <div className="form-group">
-          <label htmlFor="employeeGroup">Employee Group</label>
-          <input 
-            type="text" 
-            id="employeeGroup" 
-            name="employeeGroup" 
-            value={employeeGroup}
-            onChange={(e) => setEmployeeGroup(e.target.value)}
-          />
+          <label htmlFor="jobCategory">Job Category *</label>
+          <select 
+            id="jobCategory" 
+            name="jobCategory" 
+            value={jobCategory}
+            onChange={(e) => setJobCategory(e.target.value)}
+            required
+          >
+            <option value="">Select an option</option>
+            <option value="trades">Trades</option>
+            <option value="informationTechnology">Information Technology</option>
+            <option value="healthCare">Health Care</option>
+            <option value="education">Education</option>
+            <option value="finance">Finance</option>
+            <option value="engineering">Engineering</option>
+            <option value="hospitality">Hospitality</option>
+            <option value="retail">Retail</option>
+            {/* Add more job categories as needed */}
+          </select>
         </div>
         <div className="form-group">
           <label htmlFor="companyName">Company Name</label>

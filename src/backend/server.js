@@ -6,7 +6,7 @@ const cors = require('cors');
 const multer = require('multer');
 const { BlobServiceClient, StorageSharedKeyCredential } = require('@azure/storage-blob');
 const { v1: uuidv1 } = require('uuid');
-
+const fs = require('fs');
 const app = express();
 const port = process.env.SERVER_PORT || 3000;
 
@@ -15,9 +15,14 @@ app.use(cors());
 
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
+    database: process.env.DB_NAME,
+    // ssl: {
+    //     ca: fs.readFileSync(process.env.DB_SSL_CA),
+    //     rejectUnauthorized: true // Ensure that the server certificate is verified
+    //   }
 });
 
 db.connect((err) => {
@@ -103,14 +108,14 @@ app.post('/signup', (req, res) => {
 });
 
 app.post('/post-job', (req, res) => {
-    const { jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, employeeGroup, companyName, contactInformation, userId } = req.body;
+    const { jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, jobCategory, companyName, contactInformation, userId } = req.body;
 
     const query = `
-        INSERT INTO jobs (jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, employeeGroup, companyName, contactInformation, user_id) 
+        INSERT INTO jobs (jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, jobCategory, companyName, contactInformation, user_id) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    db.execute(query, [jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, employeeGroup, companyName, contactInformation, userId], (err, results) => {
+    db.execute(query, [jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, jobCategory, companyName, contactInformation, userId], (err, results) => {
         if (err) {
             console.error('Error inserting job data:', err.stack);
             return res.status(500).json({ message: 'Error posting job.' });
@@ -125,6 +130,25 @@ app.post('/post-job', (req, res) => {
             }
             res.json({ message: 'Job posted successfully!', job: jobResults[0] });
         });
+    });
+});
+
+app.put('/jobs/:jobId', (req, res) => {
+    const { jobId } = req.params;
+    const { jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, jobCategory, companyName, contactInformation } = req.body;
+
+    const query = `
+        UPDATE jobs 
+        SET jobTitle = ?, numPeople = ?, jobLocation = ?, streetAddress = ?, companyDescription = ?, competitionId = ?, internalClosingDate = ?, externalClosingDate = ?, payLevel = ?, employmentType = ?, travelFrequency = ?, jobCategory = ?, companyName = ?, contactInformation = ? 
+        WHERE id = ?
+    `;
+
+    db.execute(query, [jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, jobCategory, companyName, contactInformation, jobId], (err) => {
+        if (err) {
+            console.error('Error updating job:', err.stack);
+            return res.status(500).json({ message: 'Error updating job.' });
+        }
+        res.json({ message: 'Job updated successfully!' });
     });
 });
 
@@ -166,25 +190,6 @@ app.get('/jobs/:jobId', (req, res) => {
         } else {
             res.status(404).json({ message: 'Job not found.' });
         }
-    });
-});
-
-app.put('/jobs/:jobId', (req, res) => {
-    const { jobId } = req.params;
-    const { jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, employeeGroup, companyName, contactInformation } = req.body;
-
-    const query = `
-        UPDATE jobs 
-        SET jobTitle = ?, numPeople = ?, jobLocation = ?, streetAddress = ?, companyDescription = ?, competitionId = ?, internalClosingDate = ?, externalClosingDate = ?, payLevel = ?, employmentType = ?, travelFrequency = ?, employeeGroup = ?, companyName = ?, contactInformation = ? 
-        WHERE id = ?
-    `;
-
-    db.execute(query, [jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, employeeGroup, companyName, contactInformation, jobId], (err) => {
-        if (err) {
-            console.error('Error updating job:', err.stack);
-            return res.status(500).json({ message: 'Error updating job.' });
-        }
-        res.json({ message: 'Job updated successfully!' });
     });
 });
 
