@@ -1,74 +1,120 @@
 .apply-job-form-container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-  }
-  
-  .apply-job-form-container h2 {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .form-group {
-    margin-bottom: 15px;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  
-  .form-group input[type="file"],
-  .form-group input[type="number"],
-  .form-group input[type="text"],
-  .form-group input[type="email"],
-  .form-group input[type="password"] {
-    width: 100%;
-    padding: 8px;
-    box-sizing: border-box;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  .availability-checkboxes {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  
-  .availability-checkboxes div {
-    flex: 1 1 calc(33.333% - 10px);
-  }
-  
-  .availability-checkboxes label {
-    display: flex;
-    align-items: center;
-  }
-  
-  .apply-job-form-container button[type="submit"] {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  
-  .apply-job-form-container button[type="submit"]:hover {
-    background-color: #45a049;
-  }
-  
-  .apply-job-form-container p {
-    margin-top: 20px;
-    text-align: center;
-    font-size: 16px;
-    color: #333;
-  }
-  
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.apply-job-form-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  font-size: 14px;
+  color: #333;
+}
+
+.form-group input[type="file"],
+.form-group input[type="number"],
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+  transition: border-color 0.3s;
+}
+
+.form-group input[type="file"] {
+  padding: 5px;
+}
+
+.form-group input:focus {
+  border-color: #4caf50;
+  outline: none;
+}
+
+.availability-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.availability-checkboxes div {
+  flex: 1 1 calc(33.333% - 10px);
+}
+
+.availability-checkboxes label {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #333;
+}
+
+.apply-job-form-container button[type="button"],
+.apply-job-form-container button[type="submit"] {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+  transition: background-color 0.3s;
+}
+
+.apply-job-form-container button[type="button"]:hover,
+.apply-job-form-container button[type="submit"]:hover {
+  background-color: #45a049;
+}
+
+.apply-job-form-container p {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 16px;
+  color: #333;
+}
+
+.success-card {
+  border: 1px solid #4CAF50;
+  padding: 20px;
+  margin-top: 20px;
+  text-align: center;
+  background-color: #e7f9e7;
+  color: #4CAF50;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.success-card h2 {
+  margin: 0 0 10px;
+  font-size: 24px;
+  color: #4CAF50;
+}
+
+.success-card p {
+  margin: 5px 0;
+  font-size: 16px;
+  color: #333;
+}

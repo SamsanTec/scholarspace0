@@ -31,9 +31,6 @@ import EmployerDetails from './Components/EmployerDetails';
 import CourseDetails from './Components/CourseDetails';
 import { UserProvider } from './Components/UserContext';
 import { JobProvider } from './Components/JobContext';
-import NavbarStudent from './Components/NavbarStudent';
-import NavbarEmployer from './Components/NavbarEmployer';
-import NavbarAdmin from './Components/NavbarAdmin';
 import './App.css';
 
 const App = () => {
@@ -49,10 +46,26 @@ const App = () => {
               <Route path="/student" element={<StudentAuthPage apiUrl={apiUrl} />} />
               <Route path="/admin" element={<AdminAuthPage apiUrl={apiUrl} />} />
               <Route path="/employer" element={<EmployerAuthPage apiUrl={apiUrl} />} />
+
+              {/* Student Routes */}
               <Route path="/student-onboarding" element={<StudentOnboarding />} />
               <Route path="/student/dashboard" element={<StudentDashboard />} />
-              <Route path="/jobs" element={<JobListings />} />
+              <Route path="/jobs" element={<JobListings apiUrl={apiUrl} />} />
+              <Route path="/apply-job/:jobId" element={<ApplyJobForm apiUrl={apiUrl} />} />
+              <Route path="/job-details/:jobId" element={<JobDetails apiUrl={apiUrl} />} />
+              <Route path="/courses" element={<Courses />} />
+              <Route path="/courses/:courseId" element={<CourseDetails />} />
+
+              {/* Employer Routes */}
               <Route path="/employer/dashboard" element={<EmployerDashboard apiUrl={apiUrl} />} />
+              <Route path="/employer/post-job" element={<PostJob apiUrl={apiUrl} />} />
+              <Route path="/employer/edit-job/:jobId" element={<EditJob apiUrl={apiUrl} />} />
+              <Route path="/employer/view-applications" element={<ViewApplications apiUrl={apiUrl} />} />
+              <Route path="/employer/application-details/:applicationId" element={<ApplicationDetails apiUrl={apiUrl} />} />
+              <Route path="/employers" element={<EmployerList apiUrl={apiUrl} />} />
+              <Route path="/employers/:employerId" element={<EmployerDetails apiUrl={apiUrl} />} />
+
+              {/* Admin Routes */}
               <Route path="/admin/dashboard" element={<AdminDashboard apiUrl={apiUrl} />} />
               <Route path="/admin/manage-courses" element={<ManageCourses />} />
               <Route path="/admin/view-courses" element={<ViewCourses />} />
@@ -64,16 +77,6 @@ const App = () => {
               <Route path="/admin/edit-user" element={<EditUser />} />
               <Route path="/admin/reports" element={<Reports />} />
               <Route path="/admin/settings" element={<Settings />} />
-              <Route path="/employer/post-job" element={<PostJob apiUrl={apiUrl} />} />
-              <Route path="/employer/edit-job/:jobId" element={<EditJob apiUrl={apiUrl} />} />
-              <Route path="/job-details/:jobId" element={<JobDetails apiUrl={apiUrl} />} />
-              <Route path="/apply-job/:jobId" element={<ApplyJobForm apiUrl={apiUrl} />} />
-              <Route path="/employer/view-applications" element={<ViewApplications apiUrl={apiUrl} />} />
-              <Route path="/employer/application-details/:applicationId" element={<ApplicationDetails apiUrl={apiUrl} />} />
-              <Route path="/employers" element={<EmployerList apiUrl={apiUrl} />} />
-              <Route path="/employers/:employerId" element={<EmployerDetails apiUrl={apiUrl} />} />
-              <Route path="/courses" element={<Courses />} />
-              <Route path="/courses/:courseId" element={<CourseDetails />} />
             </Routes>
           </div>
         </Router>

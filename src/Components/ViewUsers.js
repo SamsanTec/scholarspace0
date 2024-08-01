@@ -1,22 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import './ViewUsers.css';
 
-const ViewUsers = () => {
+const ViewUsers = ({ apiUrl }) => {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    // Fetch users data and set it in state
+    // Fetch users data from the server and set it in state
     const fetchUsers = async () => {
-      const usersData = [
-        { id: 1, fullName: 'John Doe', email: 'johndoe@example.com', userType: 'Student', studentNumber: '12345678' },
-        { id: 2, fullName: 'Jane Smith', email: 'janesmith@example.com', userType: 'Employer' },
-        { id: 3, fullName: 'Admin User', email: 'admin@example.com', userType: 'Admin' },
-      ];
-      setUsers(usersData);
+      try {
+        const response = await fetch(`${apiUrl}/users`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch users');
+        }
+        const usersData = await response.json();
+        setUsers(usersData);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        // Handle error case as needed
+      }
     };
 
     fetchUsers();
-  }, []);
+  }, [apiUrl]);
 
   return (
     <div className="container">
@@ -33,7 +38,7 @@ const ViewUsers = () => {
         <tbody>
           {users.map(user => (
             <tr key={user.id}>
-              <td>{user.fullName}</td>
+              <td>{user.fullName || user.companyName || user.adminName}</td>
               <td>{user.email}</td>
               <td>{user.userType}</td>
               {user.userType === 'Student' && <td>{user.studentNumber}</td>}
