@@ -17,7 +17,7 @@ const EditJob = ({ apiUrl }) => {
     payLevel: '',
     employmentType: '',
     travelFrequency: '',
-    employeeGroup: '',
+    jobCategory: '',
     companyName: '',
     contactInformation: ''
   });
@@ -43,6 +43,11 @@ const EditJob = ({ apiUrl }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (jobDetails.payLevel < 15 || jobDetails.payLevel > 50) {
+      alert('Pay level must be between 15 and 50.');
+      return;
+    }
 
     try {
       const response = await fetch(`${apiUrl}/jobs/${id}`, {
@@ -160,42 +165,69 @@ const EditJob = ({ apiUrl }) => {
         <div className="form-group">
           <label htmlFor="payLevel">Pay Level</label>
           <input
-            type="text"
+            type="number"
             id="payLevel"
             name="payLevel"
             value={jobDetails.payLevel}
             onChange={handleChange}
+            min="15"
+            max="50"
+            required
           />
         </div>
         <div className="form-group">
           <label htmlFor="employmentType">Employment Type</label>
-          <input
-            type="text"
+          <select
             id="employmentType"
             name="employmentType"
             value={jobDetails.employmentType}
             onChange={handleChange}
-          />
+            required
+          >
+            <option value="partTime">Part Time</option>
+            <option value="fullTime">Full Time</option>
+            <option value="casual">Casual</option>
+            <option value="onCall">On Call</option>
+          </select>
         </div>
         <div className="form-group">
           <label htmlFor="travelFrequency">Travel Frequency</label>
-          <input
-            type="text"
+          <select
             id="travelFrequency"
             name="travelFrequency"
             value={jobDetails.travelFrequency}
             onChange={handleChange}
-          />
+            required
+          >
+            <option value="1 day per week">1 day per week</option>
+            <option value="2 days per week">2 days per week</option>
+            <option value="3 days per week">3 days per week</option>
+            <option value="4 days per week">4 days per week</option>
+            <option value="5 days per week">5 days per week</option>
+            <option value="6 days per week">6 days per week</option>
+            <option value="7 days per week">7 days per week</option>
+          </select>
         </div>
         <div className="form-group">
-          <label htmlFor="employeeGroup">Employee Group</label>
-          <input
-            type="text"
-            id="employeeGroup"
-            name="employeeGroup"
-            value={jobDetails.employeeGroup}
+          <label htmlFor="jobCategory">Job Category</label>
+          <select
+            id="jobCategory"
+            name="jobCategory"
+            value={jobDetails.jobCategory}
             onChange={handleChange}
-          />
+            required
+          >
+            <option value="trades">Trades</option>
+            <option value="information technology">Information Technology</option>
+            <option value="healthcare">Healthcare</option>
+            <option value="education">Education</option>
+            <option value="finance">Finance</option>
+            <option value="engineering">Engineering</option>
+            <option value="marketing">Marketing</option>
+            <option value="sales">Sales</option>
+            <option value="administration">Administration</option>
+            <option value="human resources">Human Resources</option>
+          </select>
         </div>
         <div className="form-group">
           <label htmlFor="companyName">Company Name</label>
