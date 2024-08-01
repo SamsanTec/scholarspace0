@@ -1,28 +1,28 @@
+/* JobDetails.css */
+
 .job-details-container {
   max-width: 1000px;
   margin: 20px auto;
   padding: 20px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  background-color: #ffffff; /* White background for better contrast */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  background-color: #f9f9f9;
 }
 
 .job-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start; /* Aligns the header items to the top */
+  align-items: center;
   margin-bottom: 20px;
-  flex-wrap: wrap; /* Wraps content on smaller screens */
 }
 
 .job-header-left {
   display: flex;
-  align-items: flex-start; /* Align items to the top */
+  align-items: center;
 }
 
 .company-logo {
-  width: 80px;
+  width: 100px;
   height: auto;
   margin-right: 20px;
 }
@@ -30,19 +30,16 @@
 .job-header-left h1 {
   margin: 0;
   font-size: 24px;
-  color: #333; /* Darker color for better readability */
 }
 
 .job-header-left p {
   margin: 4px 0;
   color: #666;
-  font-size: 14px; /* Smaller font size for additional details */
 }
 
 .job-header-right {
   display: flex;
   gap: 10px;
-  flex-wrap: wrap;
 }
 
 .save-button,
@@ -51,11 +48,10 @@
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 16px;
 }
 
 .save-button {
-  background-color: #f0f0f0;
+  background-color: #e0e0e0;
   color: #333;
 }
 
@@ -72,60 +68,14 @@
 .job-description h2,
 .contact-information h2 {
   margin-bottom: 10px;
-  font-size: 20px; /* Larger font size for section headings */
-  color: #2b3a67; /* Matching color from the previous palette */
 }
 
 .job-description p,
 .contact-information p {
   margin: 8px 0;
-  line-height: 1.6; /* Increased line height for better readability */
-  font-size: 16px;
-  color: #444; /* Darker color for better readability */
 }
 
 .job-description p strong {
+  display: block;
   font-weight: bold;
-  color: #333;
-}
-
-/* For long job descriptions, make the container scrollable */
-.job-description {
-  max-height: 400px;
-  overflow-y: auto;
-  padding-right: 10px; /* Add padding to prevent text from being cut off */
-  border-right: 1px solid #eee; /* Optional divider */
-}
-
-/* Add a subtle scroll bar for long descriptions */
-.job-description::-webkit-scrollbar {
-  width: 8px;
-}
-
-.job-description::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-.job-description::-webkit-scrollbar-thumb {
-  background-color: #cccccc;
-  border-radius: 10px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .job-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .job-header-right {
-    width: 100%;
-    justify-content: flex-end;
-  }
-
-  .save-button,
-  .apply-button {
-    width: 100%;
-    margin-top: 10px;
-  }
 }
