@@ -4,9 +4,8 @@ const bodyParser = require('body-parser');
 const mysql = require('mysql2');
 const cors = require('cors');
 const multer = require('multer');
-const { BlobServiceClient, StorageSharedKeyCredential } = require('@azure/storage-blob');
 const { v1: uuidv1 } = require('uuid');
-const fs = require('fs');
+const { uploadFileToAzure } = require('./azureStorage'); // Import from azureStorage.js
 const app = express();
 const port = process.env.SERVER_PORT || 3000;
 
@@ -14,44 +13,25 @@ app.use(bodyParser.json());
 app.use(cors());
 
 const db = mysql.createConnection({
-    host: process.env.DB_HOST,
+    host: process.env.DB_SERVER,
     port: process.env.DB_PORT,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    // ssl: {
-    //     ca: fs.readFileSync(process.env.DB_SSL_CA),
-    //     rejectUnauthorized: true // Ensure that the server certificate is verified
-    //   }
+    ssl: false
 });
 
 db.connect((err) => {
     if (err) {
-        console.error('Database connection failed: ' + err.stack);
+        console.error('Error connecting to the Azure MySQL Database:' + err.stack);
         return;
     }
-    console.log('Connected to database.');
+    console.log('Connected to Azure MySQL Database successfully.');
 });
-
-const AZURE_STORAGE_ACCOUNT_NAME = process.env.AZURE_STORAGE_ACCOUNT_NAME;
-const AZURE_STORAGE_ACCOUNT_KEY = process.env.AZURE_STORAGE_ACCOUNT_KEY;
-const AZURE_STORAGE_CONTAINER_NAME = process.env.AZURE_STORAGE_CONTAINER_NAME;
-
-const blobServiceClient = new BlobServiceClient(
-    `https://${AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net`,
-    new StorageSharedKeyCredential(AZURE_STORAGE_ACCOUNT_NAME, AZURE_STORAGE_ACCOUNT_KEY)
-);
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-async function uploadFileToAzure(fileBuffer, fileName) {
-    const containerClient = blobServiceClient.getContainerClient(AZURE_STORAGE_CONTAINER_NAME);
-    const blobName = `${uuidv1()}-${fileName}`;
-    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-    await blockBlobClient.uploadData(fileBuffer);
-    return blockBlobClient.url;
-}
 app.post('/login', (req, res) => {
     const { email, password, userType } = req.body;
     const query = 'SELECT users.id, userType, fullName, companyName, adminName FROM users LEFT JOIN students ON users.id = students.user_id LEFT JOIN employers ON users.id = employers.user_id LEFT JOIN admins ON users.id = admins.user_id WHERE email = ? AND password = ? AND userType = ?';
@@ -209,17 +189,50 @@ app.delete('/jobs/:jobId', (req, res) => {
 
 // Route to handle job applications
 app.post('/apply-job', upload.fields([{ name: 'resume' }, { name: 'coverLetter' }]), async (req, res) => {
-    const { jobId, userId, cgpa, availability } = req.body;
-    const resume = req.files['resume'][0];
-    const coverLetter = req.files['coverLetter'][0];
-
     try {
-        const resumeUrl = await uploadFileToAzure(resume.buffer, resume.originalname);
-        const coverLetterUrl = await uploadFileToAzure(coverLetter.buffer, coverLetter.originalname);
+        // Extract and parse the form data
+        const {
+            jobId,
+            userId,
+            personalInfo,
+            education,
+            experience,
+            positionDetails
+        } = JSON.parse(req.body.formData);
 
-        const query = 'INSERT INTO applications (jobId, userId, resumePath, coverLetterPath, cgpa, availability) VALUES (?, ?, ?, ?, ?, ?)';
+        // Validate inputs
+        if (!jobId || !userId || !personalInfo || !education || !experience || !positionDetails) {
+            return res.status(400).json({ message: 'Missing required fields.' });
+        }
 
-        db.execute(query, [jobId, userId, resumeUrl, coverLetterUrl, cgpa, availability], (err, results) => {
+        // Extract resume and cover letter from the files array
+        const resume = req.files['resume'] ? req.files['resume'][0] : null;
+        const coverLetter = req.files['coverLetter'] ? req.files['coverLetter'][0] : null;
+
+        // Upload the resume to Azure Blob Storage
+        const resumeUrl = resume ? await uploadFileToAzure(resume.buffer, resume.originalname) : null;
+
+        // Upload the cover letter to Azure Blob Storage, if provided
+        const coverLetterUrl = coverLetter ? await uploadFileToAzure(coverLetter.buffer, coverLetter.originalname) : null;
+
+        // Insert application data into the database
+        const query = `
+            INSERT INTO applications 
+            (jobId, userId, resumePath, coverLetterPath, personalInfo, education, experience, positionDetails) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+
+        // Execute the database query
+        db.execute(query, [
+            jobId,
+            userId,
+            resumeUrl,
+            coverLetterUrl,
+            JSON.stringify(personalInfo),   // Store personalInfo as a JSON string
+            JSON.stringify(education),      // Store education as a JSON string
+            JSON.stringify(experience),     // Store experience as a JSON string
+            JSON.stringify(positionDetails) // Store positionDetails as a JSON string
+        ], (err, results) => {
             if (err) {
                 console.error('Error inserting application data:', err.stack);
                 return res.status(500).json({ message: 'Error applying for job.' });
@@ -227,8 +240,8 @@ app.post('/apply-job', upload.fields([{ name: 'resume' }, { name: 'coverLetter' 
             res.json({ message: 'Application submitted successfully!' });
         });
     } catch (error) {
-        console.error('Error uploading files to Azure Blob Storage:', error);
-        res.status(500).json({ message: 'Error uploading files.' });
+        console.error('Error processing job application:', error);
+        res.status(500).json({ message: 'Error applying for job.' });
     }
 });
 
@@ -249,7 +262,17 @@ app.get('/applications/:employerId', (req, res) => {
             console.error('Error fetching applications:', err.stack);
             return res.status(500).json({ message: 'Error fetching applications.' });
         }
-        res.json(results);
+
+        // Parse JSON strings back into objects for easier front-end processing
+        const applications = results.map(application => ({
+            ...application,
+            personalInfo: JSON.parse(application.personalInfo),
+            education: JSON.parse(application.education),
+            experience: JSON.parse(application.experience),
+            positionDetails: JSON.parse(application.positionDetails)
+        }));
+
+        res.json(applications);
     });
 });
 
@@ -271,12 +294,19 @@ app.get('/applications/details/:applicationId', (req, res) => {
             return res.status(500).json({ message: 'Error fetching application details.' });
         }
         if (results.length > 0) {
-            res.json(results[0]);
+            // Parse JSON strings back into objects for easier front-end processing
+            const application = results[0];
+            application.personalInfo = JSON.parse(application.personalInfo);
+            application.education = JSON.parse(application.education);
+            application.experience = JSON.parse(application.experience);
+            application.positionDetails = JSON.parse(application.positionDetails);
+            res.json(application);
         } else {
             res.status(404).json({ message: 'Application not found.' });
         }
     });
 });
+
 
 // Route to fetch all employers
 app.get('/employers', (req, res) => {
@@ -349,6 +379,83 @@ app.get('/profile/:userId', (req, res) => {
         } else {
             res.status(404).send('User not found.');
         }
+    });
+});
+
+// Fetch user statistics
+app.get('/admin/user-stats', (req, res) => {
+    const query = `
+        SELECT 
+            SUM(CASE WHEN userType = 'student' THEN 1 ELSE 0 END) as students,
+            SUM(CASE WHEN userType = 'employer' THEN 1 ELSE 0 END) as employers,
+            SUM(CASE WHEN userType = 'admin' THEN 1 ELSE 0 END) as admins
+        FROM users
+    `;
+
+    db.execute(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching user stats:', err.stack);
+            return res.status(500).json({ message: 'Error fetching user stats.' });
+        }
+        res.json(results[0]);
+    });
+});
+
+// Fetch active courses count
+app.get('/admin/active-courses', (req, res) => {
+    const query = 'SELECT COUNT(*) as activeCourses FROM courses WHERE isActive = 1';
+
+    db.execute(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching active courses:', err.stack);
+            return res.status(500).json({ message: 'Error fetching active courses.' });
+        }
+        res.json(results[0]);
+    });
+});
+
+// Fetch recent activities
+app.get('/admin/recent-activities', (req, res) => {
+    const query = `
+        SELECT 
+            activityType as description, 
+            users.email as userEmail, 
+            activityTimestamp as timestamp 
+        FROM activities 
+        JOIN users ON activities.userId = users.id 
+        ORDER BY activityTimestamp DESC 
+        LIMIT 10
+    `;
+
+    db.execute(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching recent activities:', err.stack);
+            return res.status(500).json({ message: 'Error fetching recent activities.' });
+        }
+        res.json({ activities: results });
+    });
+});
+
+// Route to fetch all users
+app.get('/users', (req, res) => {
+    const query = `
+        SELECT 
+            users.id, users.email, users.userType, 
+            students.fullName, students.studentNumber,
+            employers.companyName,
+            admins.adminName
+        FROM users
+        LEFT JOIN students ON users.id = students.user_id
+        LEFT JOIN employers ON users.id = employers.user_id
+        LEFT JOIN admins ON users.id = admins.user_id
+    `;
+
+    db.execute(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching users:', err.stack);
+            return res.status(500).json({ message: 'Error fetching users.' });
+        }
+        res.json(results);
     });
 });
 

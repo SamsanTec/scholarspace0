@@ -1,74 +1,126 @@
 .apply-job-form-container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-  }
-  
-  .apply-job-form-container h2 {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .form-group {
-    margin-bottom: 15px;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  
-  .form-group input[type="file"],
-  .form-group input[type="number"],
-  .form-group input[type="text"],
-  .form-group input[type="email"],
-  .form-group input[type="password"] {
-    width: 100%;
-    padding: 8px;
-    box-sizing: border-box;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  .availability-checkboxes {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  
-  .availability-checkboxes div {
-    flex: 1 1 calc(33.333% - 10px);
-  }
-  
-  .availability-checkboxes label {
-    display: flex;
-    align-items: center;
-  }
-  
-  .apply-job-form-container button[type="submit"] {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  
-  .apply-job-form-container button[type="submit"]:hover {
-    background-color: #45a049;
-  }
-  
-  .apply-job-form-container p {
-    margin-top: 20px;
-    text-align: center;
-    font-size: 16px;
-    color: #333;
-  }
-  
+  max-width: 700px; /* Increased max width for more spacious layout */
+  margin: 20px auto; /* Added top margin for better spacing */
+  padding: 25px;
+  border: 1px solid #ddd; /* Slightly lighter border */
+  border-radius: 10px; /* Slightly more rounded corners */
+  background-color: #f7f7f7; /* Softer background color */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Slightly stronger shadow */
+}
+
+.apply-job-form-container h2 {
+  text-align: center;
+  margin-bottom: 25px; /* Increased spacing */
+  font-size: 26px; /* Slightly larger font */
+  color: #444; /* Darker text color for better contrast */
+}
+
+.form-group {
+  margin-bottom: 24px; /* Increased spacing */
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 10px; /* Increased spacing */
+  font-weight: 600; /* Increased font weight */
+  font-size: 15px; /* Slightly larger font */
+  color: #555; /* Slightly darker color */
+}
+
+.form-group input[type="file"],
+.form-group input[type="number"],
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="date"],
+.form-group select {
+  width: 100%;
+  padding: 12px; /* Increased padding */
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 5px; /* Slightly more rounded corners */
+  font-size: 15px; /* Slightly larger font */
+  color: #333;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input[type="file"] {
+  padding: 8px; /* More padding for file input */
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #4caf50;
+  box-shadow: 0 0 6px rgba(76, 175, 80, 0.2); /* Added box shadow on focus */
+  outline: none;
+}
+
+.availability-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px; /* Increased gap for better spacing */
+  margin-bottom: 24px;
+}
+
+.availability-checkboxes div {
+  flex: 1 1 calc(33.333% - 12px); /* Adjusted for new gap size */
+  display: flex; /* Flexbox for checkbox alignment */
+  align-items: center;
+}
+
+.availability-checkboxes label {
+  font-size: 15px; /* Slightly larger font */
+  color: #555; /* Slightly darker color */
+}
+
+.apply-job-form-container button[type="button"],
+.apply-job-form-container button[type="submit"] {
+  display: block;
+  width: 100%;
+  padding: 14px; /* Increased padding */
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px; /* Slightly more rounded corners */
+  cursor: pointer;
+  font-size: 17px; /* Slightly larger font */
+  font-weight: bold; /* Bold text for buttons */
+  margin-top: 12px; /* Increased top margin */
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.apply-job-form-container button[type="button"]:hover,
+.apply-job-form-container button[type="submit"]:hover {
+  background-color: #45a049;
+  transform: scale(1.02); /* Slight zoom on hover */
+}
+
+.apply-job-form-container p {
+  margin-top: 25px; /* Increased top margin */
+  text-align: center;
+  font-size: 17px; /* Slightly larger font */
+  color: #444; /* Slightly darker color */
+}
+
+.success-card {
+  border: 1px solid #4CAF50;
+  padding: 25px; /* Increased padding */
+  margin-top: 25px; /* Increased top margin */
+  text-align: center;
+  background-color: #e7f9e7;
+  color: #4CAF50;
+  border-radius: 10px; /* Slightly more rounded corners */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Slightly stronger shadow */
+}
+
+.success-card h2 {
+  margin: 0 0 12px; /* Increased bottom margin */
+  font-size: 26px; /* Slightly larger font */
+  color: #4CAF50;
+}
+
+.success-card p {
+  margin: 8px 0; /* Increased margin */
+  font-size: 17px; /* Slightly larger font */
+  color: #444; /* Slightly darker color */
+}

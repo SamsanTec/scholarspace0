@@ -1,27 +1,36 @@
 .employer-list-container {
-    padding: 20px;
-  }
-  
-  .employer-list-container h2 {
-    margin-bottom: 20px;
-  }
-  
-  .employer-list-container ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .employer-list-container li {
-    margin-bottom: 10px;
-  }
-  
-  .employer-list-container li a {
-    text-decoration: none;
-    color: #007bff;
-    font-weight: bold;
-  }
-  
-  .employer-list-container li a:hover {
-    text-decoration: underline;
-  }
-  
+  padding: 20px;
+}
+
+.employer-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.employer-card {
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  text-decoration: none;
+  color: #333;
+  flex: 1 1 300px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.employer-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.employer-card-content h3 {
+  margin: 0 0 10px;
+  font-size: 1.5em;
+}
+
+.employer-card-content p {
+  margin: 0;
+  color: #555;
+}

@@ -1,7 +1,7 @@
-// src/components/StudentAuthPage.js
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from './UserContext';
+import CustomErrorMessage from './CustomErrorMessage'; // Import the custom error message component
 import './StudentAuthPage.css';
 
 const StudentAuthPage = ({ apiUrl }) => {
@@ -11,12 +11,16 @@ const StudentAuthPage = ({ apiUrl }) => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [studentNumber, setStudentNumber] = useState('');
+  const [error, setError] = useState('');
+  const [showError, setShowError] = useState(false);
   const navigate = useNavigate();
 
   const handleAuth = async (e) => {
     e.preventDefault();
     const url = isLogin ? `${apiUrl}/login` : `${apiUrl}/signup`;
-    const data = isLogin ? { email, password, userType: 'student' } : { email, password, fullName, studentNumber, userType: 'student' };
+    const data = isLogin
+      ? { email, password, userType: 'student' }
+      : { email, password, fullName, studentNumber, userType: 'student' };
 
     try {
       const response = await fetch(url, {
@@ -32,22 +36,27 @@ const StudentAuthPage = ({ apiUrl }) => {
         setUser({
           userId: result.userId,
           userType: 'student',
-          name: result.name,  // Ensure this is passed correctly
+          name: result.name,
         });
         navigate('/student/dashboard');
       } else {
         const errorMessage = await response.text();
-        console.error('Error:', errorMessage);
-        alert(errorMessage);
+        setError(errorMessage);
+        setShowError(true);
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('An error occurred. Please try again.');
+      setError('An unexpected error occurred. Please try again.');
+      setShowError(true);
     }
   };
 
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
+  };
+
+  const closeError = () => {
+    setShowError(false);
   };
 
   return (
@@ -107,6 +116,7 @@ const StudentAuthPage = ({ apiUrl }) => {
       <button className="toggle-button" onClick={toggleAuthMode}>
         {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'}
       </button>
+      {showError && <CustomErrorMessage message={error} onClose={closeError} />}
     </div>
   );
 };

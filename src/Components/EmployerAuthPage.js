@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from './UserContext';
+import CustomErrorMessage from './CustomErrorMessage'; // Import the custom error message component
 import './EmployerAuthPage.css';
 
 const EmployerAuthPage = ({ apiUrl }) => {
@@ -10,6 +11,8 @@ const EmployerAuthPage = ({ apiUrl }) => {
   const [password, setPassword] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [companyAddress, setCompanyAddress] = useState('');
+  const [error, setError] = useState('');
+  const [showError, setShowError] = useState(false);
   const navigate = useNavigate();
 
   const handleAuth = async (e) => {
@@ -32,22 +35,28 @@ const EmployerAuthPage = ({ apiUrl }) => {
         const result = await response.json();
         setUser({
           userId: result.userId,
-          userType: 'employer'
+          userType: 'employer',
+          name: result.name,
         });
         navigate('/employer/dashboard');
       } else {
         const errorMessage = await response.text();
-        console.error('Error:', errorMessage);
-        alert(errorMessage); // You might want to improve this alert for better user experience
+        setError(errorMessage);
+        setShowError(true);
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('An error occurred. Please try again.');
+      setError('An unexpected error occurred. Please try again.');
+      setShowError(true);
     }
   };
 
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
+  };
+
+  const closeError = () => {
+    setShowError(false);
   };
 
   return (
@@ -107,6 +116,7 @@ const EmployerAuthPage = ({ apiUrl }) => {
       <button className="toggle-button" onClick={toggleAuthMode}>
         {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'}
       </button>
+      {showError && <CustomErrorMessage message={error} onClose={closeError} />}
     </div>
   );
 };

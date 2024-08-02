@@ -1,15 +1,16 @@
-// src/components/NavbarStudent.js
 import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from './UserContext';
 import { getInitials } from '../utils/getInitials';
 import './Navbar.css';
 
 const NavbarStudent = () => {
   const { user, setUser } = useContext(UserContext);
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     setUser({ userId: null, userType: null, fullName: '', initials: '' });
+    navigate('/'); // Redirect to the landing page
   };
 
   return (
