@@ -4,9 +4,8 @@ const bodyParser = require('body-parser');
 const mysql = require('mysql2');
 const cors = require('cors');
 const multer = require('multer');
-const { BlobServiceClient, StorageSharedKeyCredential } = require('@azure/storage-blob');
 const { v1: uuidv1 } = require('uuid');
-const fs = require('fs');
+const { uploadFileToAzure } = require('./azureStorage'); // Import from azureStorage.js
 const app = express();
 const port = process.env.SERVER_PORT || 3000;
 
@@ -30,25 +29,9 @@ db.connect((err) => {
     console.log('Connected to Azure MySQL Database successfully.');
 });
 
-const AZURE_STORAGE_ACCOUNT_NAME = process.env.AZURE_STORAGE_ACCOUNT_NAME;
-const AZURE_STORAGE_ACCOUNT_KEY = process.env.AZURE_STORAGE_ACCOUNT_KEY;
-const AZURE_STORAGE_CONTAINER_NAME = process.env.AZURE_STORAGE_CONTAINER_NAME;
-
-const blobServiceClient = new BlobServiceClient(
-    `https://${AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net`,
-    new StorageSharedKeyCredential(AZURE_STORAGE_ACCOUNT_NAME, AZURE_STORAGE_ACCOUNT_KEY)
-);
-
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-async function uploadFileToAzure(fileBuffer, fileName) {
-    const containerClient = blobServiceClient.getContainerClient(AZURE_STORAGE_CONTAINER_NAME);
-    const blobName = `${uuidv1()}-${fileName}`;
-    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-    await blockBlobClient.uploadData(fileBuffer);
-    return blockBlobClient.url;
-}
 app.post('/login', (req, res) => {
     const { email, password, userType } = req.body;
     const query = 'SELECT users.id, userType, fullName, companyName, adminName FROM users LEFT JOIN students ON users.id = students.user_id LEFT JOIN employers ON users.id = employers.user_id LEFT JOIN admins ON users.id = admins.user_id WHERE email = ? AND password = ? AND userType = ?';
@@ -217,6 +200,11 @@ app.post('/apply-job', upload.fields([{ name: 'resume' }, { name: 'coverLetter' 
             positionDetails
         } = JSON.parse(req.body.formData);
 
+        // Validate inputs
+        if (!jobId || !userId || !personalInfo || !education || !experience || !positionDetails) {
+            return res.status(400).json({ message: 'Missing required fields.' });
+        }
+
         // Extract resume and cover letter from the files array
         const resume = req.files['resume'] ? req.files['resume'][0] : null;
         const coverLetter = req.files['coverLetter'] ? req.files['coverLetter'][0] : null;
@@ -257,7 +245,6 @@ app.post('/apply-job', upload.fields([{ name: 'resume' }, { name: 'coverLetter' 
     }
 });
 
-
 // Route to handle fetching job applications for an employer
 app.get('/applications/:employerId', (req, res) => {
     const employerId = req.params.employerId;
@@ -275,10 +262,19 @@ app.get('/applications/:employerId', (req, res) => {
             console.error('Error fetching applications:', err.stack);
             return res.status(500).json({ message: 'Error fetching applications.' });
         }
-        res.json(results);
+
+        // Parse JSON strings back into objects for easier front-end processing
+        const applications = results.map(application => ({
+            ...application,
+            personalInfo: JSON.parse(application.personalInfo),
+            education: JSON.parse(application.education),
+            experience: JSON.parse(application.experience),
+            positionDetails: JSON.parse(application.positionDetails)
+        }));
+
+        res.json(applications);
     });
 });
-
 
 // Route to handle fetching application details
 app.get('/applications/details/:applicationId', (req, res) => {
@@ -310,6 +306,7 @@ app.get('/applications/details/:applicationId', (req, res) => {
         }
     });
 });
+
 
 // Route to fetch all employers
 app.get('/employers', (req, res) => {
