@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './ApplyJobForm.css';
 
-const ApplyJobForm = ({ apiUrl }) => {
+const ApplyJobForm = ({ apiUrl, jobId, userId }) => {
   const navigate = useNavigate();
 
   // State to manage form data
   const [formData, setFormData] = useState({
+    jobId: jobId, // Assuming jobId is passed as a prop
+    userId: userId, // Assuming userId is passed as a prop or retrieved from context
     firstName: '',
     lastName: '',
     age: '',
@@ -52,14 +54,7 @@ const ApplyJobForm = ({ apiUrl }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
 
-  const handleFileChange = (e) => {
-    const { name, files } = e.target;
-    setFormData(prevData => ({
-      ...prevData,
-      [name]: files[0]
-    }));
-  };
-
+  // Handle input changes
   const handleInputChange = (name, value) => {
     setFormData(prevData => ({
       ...prevData,
@@ -67,15 +62,16 @@ const ApplyJobForm = ({ apiUrl }) => {
     }));
   };
 
-  const handleArrayChange = (name, index, value) => {
-    const updatedArray = [...formData[name]];
-    updatedArray[index] = value;
+  // Handle file changes
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
     setFormData(prevData => ({
       ...prevData,
-      [name]: updatedArray
+      [name]: files[0] // Assuming single file input for resume and cover letter
     }));
   };
 
+  // Add array item (e.g., for duties, major subjects)
   const handleAddArrayItem = (name) => {
     setFormData(prevData => ({
       ...prevData,
@@ -83,6 +79,7 @@ const ApplyJobForm = ({ apiUrl }) => {
     }));
   };
 
+  // Remove array item
   const handleRemoveArrayItem = (name, index) => {
     const updatedArray = [...formData[name]];
     updatedArray.splice(index, 1);
@@ -92,43 +89,109 @@ const ApplyJobForm = ({ apiUrl }) => {
     }));
   };
 
+  // Handle array input change
+  const handleArrayChange = (name, index, value) => {
+    const updatedArray = [...formData[name]];
+    updatedArray[index] = value;
+    setFormData(prevData => ({
+      ...prevData,
+      [name]: updatedArray
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const formPayload = new FormData();
     formPayload.append('resume', formData.resume);
     if (formData.coverLetter) {
-      formPayload.append('coverLetter', formData.coverLetter);
+        formPayload.append('coverLetter', formData.coverLetter);
     }
 
-    // Append each field individually as plain text or JSON if needed
-    Object.keys(formData).forEach(key => {
-      if (key !== 'resume' && key !== 'coverLetter') {
-        if (Array.isArray(formData[key]) || typeof formData[key] === 'object') {
-          formPayload.append(key, JSON.stringify(formData[key]));
-        } else {
-          formPayload.append(key, formData[key]);
-        }
-      }
-    });
+    const dataToSend = {
+        jobId: formData.jobId,
+        userId: formData.userId,
+        personalInfo: {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            age: formData.age,
+            gender: formData.gender,
+            address: formData.address,
+            phoneNumber: formData.phoneNumber,
+            email: formData.email,
+        },
+        education: {
+            secondarySchool: formData.secondarySchool,
+            majorSubjects: formData.majorSubjects,
+            marksGradesCGPA: formData.marksGradesCGPA,
+            graduationDate: formData.graduationDate,
+            degreeDiploma: formData.degreeDiploma,
+            degreeMajors: formData.degreeMajors,
+            degreeMarksCGPA: formData.degreeMarksCGPA,
+            degreeGraduationDate: formData.degreeGraduationDate,
+        },
+        experience: {
+            isEmployed: formData.isEmployed,
+            companyName: formData.companyName,
+            employerName: formData.employerName,
+            hourlyRate: formData.hourlyRate,
+            positionExperience: formData.positionExperience,
+            startDate: formData.startDate,
+            endDate: formData.endDate,
+            duties: formData.duties,
+            reasonForLeaving: formData.reasonForLeaving,
+        },
+        positionDetails: {
+            position: formData.position,
+            desiredCompensation: formData.desiredCompensation,
+            daysOfAvailability: formData.daysOfAvailability,
+            hoursOfAvailability: formData.hoursOfAvailability,
+            overtimeAvailability: formData.overtimeAvailability,
+            overtimeHoursPerDay: formData.overtimeHoursPerDay,
+        },
+    };
+
+    formPayload.append('formData', JSON.stringify(dataToSend));
 
     try {
-      const response = await fetch(`${apiUrl}/apply-job`, {
-        method: 'POST',
-        body: formPayload,
-      });
+        const response = await fetch(`${apiUrl}/apply-job`, {
+            method: 'POST',
+            body: formPayload,
+        });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText);
-      }
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText);
+        }
 
-      setSubmissionSuccess(true);
-      setTimeout(() => {
-        navigate('/student/dashboard');
-      }, 3000);
+        setSubmissionSuccess(true);
+        setTimeout(() => {
+            navigate('/student/dashboard');
+        }, 3000);
     } catch (error) {
-      console.error('Error during form submission:', error);
-      alert(`Error: ${error.message}`);
+        console.error('Error during form submission:', error);
+        alert(`Error: ${error.message}`);
+    }
+};
+
+
+  // Render the current step
+  const renderStep = () => {
+    switch (currentStep) {
+      case 1:
+        return renderPersonalInformationForm();
+      case 2:
+        return renderPositionAvailabilityForm();
+      case 3:
+        return renderEducationForm();
+      case 4:
+        return renderExperienceForm();
+      case 5:
+        return renderReferencesForm();
+      case 6:
+        return renderCertificationForm();
+      default:
+        return null;
     }
   };
 
@@ -687,25 +750,6 @@ const ApplyJobForm = ({ apiUrl }) => {
       </div>
     </div>
   );
-
-  const renderStep = () => {
-    switch (currentStep) {
-      case 1:
-        return renderPersonalInformationForm();
-      case 2:
-        return renderPositionAvailabilityForm();
-      case 3:
-        return renderEducationForm();
-      case 4:
-        return renderExperienceForm();
-      case 5:
-        return renderReferencesForm();
-      case 6:
-        return renderCertificationForm();
-      default:
-        return null;
-    }
-  };
 
   const nextStep = () => setCurrentStep(prev => prev + 1);
   const prevStep = () => setCurrentStep(prev => prev - 1);
