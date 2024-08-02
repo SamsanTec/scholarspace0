@@ -31,6 +31,7 @@ import EmployerDetails from './Components/EmployerDetails';
 import CourseDetails from './Components/CourseDetails';
 import { UserProvider } from './Components/UserContext';
 import { JobProvider } from './Components/JobContext';
+import PrivacyPolicy from './Components/PrivacyPolicy';
 import './App.css';
 
 const App = () => {
@@ -43,6 +44,7 @@ const App = () => {
           <div className="App">
             <Routes>
               <Route path="/" element={<LandingPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/student" element={<StudentAuthPage apiUrl={apiUrl} />} />
               <Route path="/admin" element={<AdminAuthPage apiUrl={apiUrl} />} />
               <Route path="/employer" element={<EmployerAuthPage apiUrl={apiUrl} />} />
