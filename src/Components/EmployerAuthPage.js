@@ -42,7 +42,7 @@ const EmployerAuthPage = ({ apiUrl }) => {
     if (!isLogin) {
       const passwordErrors = validatePassword(password);
       if (passwordErrors) {
-        setError(passwordErrors.join(' \n'));
+        setError(passwordErrors.join('\n'));
         setShowError(true);
         return;
       }
@@ -67,17 +67,17 @@ const EmployerAuthPage = ({ apiUrl }) => {
         setUser({
           userId: result.userId,
           userType: 'employer',
-          name: result.name,
+          name: result.companyName,
         });
         navigate('/employer/dashboard');
       } else {
-        const errorMessage = await response.text();
-        setError(errorMessage);
+        const errorData = await response.json();
+        setError(errorData.message || 'An error occurred during sign up.');
         setShowError(true);
       }
     } catch (error) {
       console.error('Error:', error);
-      setError('An unexpected error occurred. Please try again.');
+      setError('This email is already registered. Please sign in.');
       setShowError(true);
     }
   };

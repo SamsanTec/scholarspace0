@@ -48,25 +48,25 @@ const StudentAuthPage = ({ apiUrl }) => {
   const handleAuth = async (e) => {
     e.preventDefault();
     let errors = [];
-
+  
     if (!isLogin) {
       const passwordErrors = validatePassword(password);
       const studentNumberErrors = validateStudentNumber(studentNumber);
-
+  
       errors = [...passwordErrors, ...studentNumberErrors];
-
+  
       if (errors.length > 0) {
         setError(errors.join('\n'));
         setShowError(true);
         return;
       }
     }
-
+  
     const url = isLogin ? `${apiUrl}/login` : `${apiUrl}/signup`;
     const data = isLogin
       ? { email, password, userType: 'student' }
       : { email, password, fullName, studentNumber, userType: 'student' };
-
+  
     try {
       const response = await fetch(url, {
         method: 'POST',
@@ -75,27 +75,27 @@ const StudentAuthPage = ({ apiUrl }) => {
         },
         body: JSON.stringify(data),
       });
-
+  
       if (response.ok) {
         const result = await response.json();
         setUser({
           userId: result.userId,
           userType: 'student',
-          name: result.name,
+          name: result.fullName,
         });
         navigate('/student/dashboard');
       } else {
-        const errorMessage = await response.text();
-        setError(errorMessage);
+        const errorData = await response.json();
+        setError(errorData.message || 'An error occurred during sign up.');
         setShowError(true);
       }
     } catch (error) {
       console.error('Error:', error);
-      setError('An unexpected error occurred. Please try again.');
+      setError('This email is already registered. Please sign in.');
       setShowError(true);
     }
   };
-
+  
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
   };
