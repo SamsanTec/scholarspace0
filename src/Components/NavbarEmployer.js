@@ -10,7 +10,7 @@ const NavbarEmployer = () => {
 
   const handleLogout = () => {
     setUser({ userId: null, userType: null, fullName: '', initials: '' });
-    navigate('/'); // Redirect to the landing page
+    navigate('/employer'); // Redirect to the landing page
   };
 
   return (
