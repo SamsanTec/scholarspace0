@@ -15,13 +15,58 @@ const StudentAuthPage = ({ apiUrl }) => {
   const [showError, setShowError] = useState(false);
   const navigate = useNavigate();
 
+  const validatePassword = (password) => {
+    const errors = [];
+
+    if (password.length < 8) {
+      errors.push('Password must be at least 8 characters long.');
+    }
+    if (!/[A-Z]/.test(password)) {
+      errors.push('Password must contain at least one uppercase letter.');
+    }
+    if (!/[a-z]/.test(password)) {
+      errors.push('Password must contain at least one lowercase letter.');
+    }
+    if (!/\d/.test(password)) {
+      errors.push('Password must contain at least one number.');
+    }
+    if (!/[!@#$%^&*]/.test(password)) {
+      errors.push('Password must contain at least one special character (!@#$%^&*).');
+    }
+
+    return errors;
+  };
+
+  const validateStudentNumber = (studentNumber) => {
+    const errors = [];
+    if (!/^\d{8}$/.test(studentNumber)) {
+      errors.push('Student number must be an 8-digit number.');
+    }
+    return errors;
+  };
+
   const handleAuth = async (e) => {
     e.preventDefault();
+    let errors = [];
+  
+    if (!isLogin) {
+      const passwordErrors = validatePassword(password);
+      const studentNumberErrors = validateStudentNumber(studentNumber);
+  
+      errors = [...passwordErrors, ...studentNumberErrors];
+  
+      if (errors.length > 0) {
+        setError(errors.join('\n'));
+        setShowError(true);
+        return;
+      }
+    }
+  
     const url = isLogin ? `${apiUrl}/login` : `${apiUrl}/signup`;
     const data = isLogin
       ? { email, password, userType: 'student' }
       : { email, password, fullName, studentNumber, userType: 'student' };
-
+  
     try {
       const response = await fetch(url, {
         method: 'POST',
@@ -30,27 +75,27 @@ const StudentAuthPage = ({ apiUrl }) => {
         },
         body: JSON.stringify(data),
       });
-
+  
       if (response.ok) {
         const result = await response.json();
         setUser({
           userId: result.userId,
           userType: 'student',
-          name: result.name,
+          name: result.fullName,
         });
         navigate('/student/dashboard');
       } else {
-        const errorMessage = await response.text();
-        setError(errorMessage);
+        const errorData = await response.json();
+        setError(errorData.message || 'An error occurred during sign up.');
         setShowError(true);
       }
     } catch (error) {
       console.error('Error:', error);
-      setError('An unexpected error occurred. Please try again.');
+      setError('This email is already registered. Please sign in.');
       setShowError(true);
     }
   };
-
+  
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
   };
@@ -116,7 +161,17 @@ const StudentAuthPage = ({ apiUrl }) => {
       <button className="toggle-button" onClick={toggleAuthMode}>
         {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'}
       </button>
-      {showError && <CustomErrorMessage message={error} onClose={closeError} />}
+      {showError && (
+        <CustomErrorMessage
+          message={error.split('\n').map((msg, idx) => (
+            <React.Fragment key={idx}>
+              {msg}
+              <br />
+            </React.Fragment>
+          ))}
+          onClose={closeError}
+        />
+      )}
     </div>
   );
 };

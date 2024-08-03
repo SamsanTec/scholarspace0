@@ -10,7 +10,7 @@ const NavbarStudent = () => {
 
   const handleLogout = () => {
     setUser({ userId: null, userType: null, fullName: '', initials: '' });
-    navigate('/'); // Redirect to the landing page
+    navigate('/student'); // Redirect to the landing page
   };
 
   return (
