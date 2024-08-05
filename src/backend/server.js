@@ -151,6 +151,31 @@ app.put('/jobs/:jobId', (req, res) => {
     });
 });
 
+app.post('/admin/courses', (req, res) => {
+    const { title, description, category } = req.body;
+    
+    const query = 'INSERT INTO courses (title, description, category) VALUES (?, ?, ?)';
+    db.execute(query, [title, description, category], (err, results) => {
+        if (err) {
+            console.error('Error inserting course:', err.stack);
+            return res.status(500).json({ message: 'Error adding course.' });
+        }
+        res.status(201).json({ message: 'Course added successfully!', courseId: results.insertId });
+    });
+});
+
+// Fetch Courses Endpoint (Optional for Testing)
+app.get('/courses', (req, res) => {
+    const query = 'SELECT * FROM courses';
+    db.execute(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching courses:', err.stack);
+            return res.status(500).json({ message: 'Error fetching courses.' });
+        }
+        res.json(results);
+    });
+});
+
 app.get('/jobs/employer/:userId', (req, res) => {
     const userId = req.params.userId;
 
