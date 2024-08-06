@@ -10,7 +10,8 @@ export const UserProvider = ({ children }) => {
       userId: null,
       userType: null,
       fullName: '',
-      initials: ''
+      initials: '',
+      profilePicture: null, // Add profilePicture to the default state
     };
   });
 

@@ -62,7 +62,7 @@ const App = () => {
               <Route path="/employer/dashboard" element={<EmployerDashboard apiUrl={apiUrl} />} />
               <Route path="/employer/post-job" element={<PostJob apiUrl={apiUrl} />} />
               <Route path="/employer/edit-job/:jobId" element={<EditJob apiUrl={apiUrl} />} />
-              <Route path="/employer/view-applications" element={<ViewApplications apiUrl={apiUrl} />} />
+              <Route path="/employer/view-applications/:jobId" element={<ViewApplications apiUrl={apiUrl} />} />
               <Route path="/employer/application-details/:applicationId" element={<ApplicationDetails apiUrl={apiUrl} />} />
               <Route path="/employers" element={<EmployerList apiUrl={apiUrl} />} />
               <Route path="/employers/:employerId" element={<EmployerDetails apiUrl={apiUrl} />} />
@@ -76,7 +76,7 @@ const App = () => {
               <Route path="/admin/manage-users" element={<ManageUsers />} />
               <Route path="/admin/add-user" element={<AddUser />} />
               <Route path="/admin/view-users" element={<ViewUsers />} />
-              <Route path="/admin/edit-user" element={<EditUser />} />
+              <Route path="/admin/edit-user/:userId" element={<EditUser />} />
               <Route path="/admin/reports" element={<Reports />} />
               <Route path="/admin/settings" element={<Settings />} />
             </Routes>

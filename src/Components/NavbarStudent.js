@@ -9,8 +9,12 @@ const NavbarStudent = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    setUser({ userId: null, userType: null, fullName: '', initials: '' });
-    navigate('/student'); // Redirect to the landing page
+    // Clear user context
+    setUser({ userId: null, userType: null, fullName: '', initials: '', profilePicture: null });
+    // Clear localStorage
+    localStorage.removeItem('user');
+    // Redirect to the landing page
+    navigate('/');
   };
 
   return (
@@ -24,11 +28,24 @@ const NavbarStudent = () => {
         
         <Link to="/employers">Employers</Link>
         <Link to="/courses">Courses</Link>
+        <Link to="/profile">Profile</Link>
       </div>
       <div className="navbar-profile">
-        {user.userId ? (
+        {user && user.userId ? (
           <>
-            <div className="profile-initials">{getInitials(user.fullName)}</div>
+            <Link to="/profile" className="profile-link">
+              {user.profilePicture ? (
+                <img 
+                  src={user.profilePicture} 
+                  alt="Profile" 
+                  className="profile-picture"
+                />
+              ) : (
+                <div className="profile-initials">
+                  {getInitials(user.fullName)}
+                </div>
+              )}
+            </Link>
             <button className="logout-button" onClick={handleLogout}>Logout</button>
           </>
         ) : (

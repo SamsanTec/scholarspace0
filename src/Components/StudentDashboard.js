@@ -1,4 +1,3 @@
-// StudentDashboard.js
 import React, { useContext, useEffect } from 'react';
 import { JobContext } from './JobContext';
 import JobCard from './JobCard';
