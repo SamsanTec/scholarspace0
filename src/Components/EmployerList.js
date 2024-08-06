@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+
 import './EmployerList.css';
 import NavbarStudent from './NavbarStudent';
 
@@ -43,6 +44,7 @@ const EmployerList = ({ apiUrl }) => {
       </header>
       <h2>Employers</h2>
       <div className="employer-cards">
+      <div className="employer-cards">
         {employers.map((employer) => (
           <Link to={`/employers/${employer.user_id}`} key={employer.user_id} className="employer-card">
             <div className="employer-card-content">
@@ -51,6 +53,7 @@ const EmployerList = ({ apiUrl }) => {
             </div>
           </Link>
         ))}
+      </div>
       </div>
     </div>
   );

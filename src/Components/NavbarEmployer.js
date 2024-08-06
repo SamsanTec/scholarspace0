@@ -16,7 +16,7 @@ const NavbarEmployer = () => {
   return (
     <nav className="navbar">
       <div className="navbar-logo">
-        <img src="/path/to/logo.png" alt="Career Connection Logo" />
+        <img src="/logo.png" alt="Career Connection Logo" />
       </div>
       <div className="navbar-links">
         <Link to="/employer/dashboard">Dashboard</Link>

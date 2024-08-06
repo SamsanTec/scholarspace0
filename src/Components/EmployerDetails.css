@@ -1,36 +1,36 @@
 .employer-details-container {
-    padding: 20px;
-  }
-  
-  .employer-details-container h2 {
-    margin-bottom: 10px;
-  }
-  
-  .employer-details-container p {
-    margin-bottom: 20px;
-  }
-  
-  .job-listings {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
-  
-  .job-card {
-    background-color: #f8f9fa;
-    padding: 20px;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    width: 100%;
-    max-width: 300px;
-  }
-  
-  .job-card h3 {
-    margin-top: 0;
-    margin-bottom: 10px;
-  }
-  
-  .job-card p {
-    margin-bottom: 10px;
-  }
-  
+  padding: 20px;
+  background-color: #ffffff; /* Optional: Add a background color */
+}
+
+.employer-details-container h2 {
+  margin-bottom: 10px;
+}
+
+.employer-details-container p {
+  margin-bottom: 20px;
+}
+
+.job-listings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.job-card {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.job-card h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.job-card p {
+  margin-bottom: 10px;
+}

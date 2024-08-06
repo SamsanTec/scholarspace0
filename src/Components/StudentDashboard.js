@@ -18,11 +18,13 @@ const StudentDashboard = () => {
         <NavbarStudent />
       </header>
       <main className="dashboard-main">
-        <h3>Job Listings</h3>
+        <h3 className='joblistingsbanner'>Job Listings</h3>
+        <div className='jobs'>
         <div className="job-listings">
           {jobs.map((job) => (
             <JobCard key={job.id} job={job} />
           ))}
+        </div>
         </div>
       </main>
     </div>

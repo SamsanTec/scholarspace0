@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import NavbarStudent from './NavbarStudent'; // Assuming you have a Navbar component
 import './JobDetails.css';
 
 const JobDetails = ({ apiUrl }) => {
@@ -50,37 +51,74 @@ const JobDetails = ({ apiUrl }) => {
   };
 
   return (
-    <div className="job-details-container">
-      <div className="job-header">
-        <div className="job-header-left">
-          <img src="/logo.png" alt="Company Logo" className="company-logo" />
-          <div>
-            <h1>{jobDetails.jobTitle}</h1>
-            <p>{jobDetails.companyName} - {jobDetails.jobLocation}</p>
-            <p>{jobDetails.jobType}</p>
+    <div className="job-details-page">
+      <NavbarStudent /> {/* Include the navbar at the top */}
+      <div className="job-details-container">
+        <div className="job-header">
+          <div className="job-header-left">
+            <img src="/logo.png" alt="Company Logo" className="company-logo" />
+            <div>
+              <h1>{jobDetails.jobTitle}</h1>
+              <p>{jobDetails.companyName} - {jobDetails.jobLocation}</p>
+              <p>{jobDetails.jobType}</p>
+            </div>
+          </div>
+          <div className="job-header-right">
+            <button className="save-button" onClick={handleSave}>Save</button>
+            <button className="apply-button" onClick={handleApply}>Apply</button>
           </div>
         </div>
-        <div className="job-header-right">
-          <button className="save-button" onClick={handleSave}>Save</button>
-          <button className="apply-button" onClick={handleApply}>Apply</button>
+        <div className="job-description">
+          <h2>Job Description</h2>
+          <table className="job-details-table">
+            <tbody>
+              <tr>
+                <td><strong>Competition ID:</strong></td>
+                <td>{jobDetails.competitionId}</td>
+              </tr>
+              <tr>
+                <td><strong>Internal Closing Date:</strong></td>
+                <td>{jobDetails.internalClosingDate}</td>
+              </tr>
+              <tr>
+                <td><strong>External Closing Date:</strong></td>
+                <td>{jobDetails.externalClosingDate}</td>
+              </tr>
+              <tr>
+                <td><strong># of Openings:</strong></td>
+                <td>{jobDetails.numPeople}</td>
+              </tr>
+              <tr>
+                <td><strong>Pay Level:</strong></td>
+                <td>{jobDetails.payLevel}</td>
+              </tr>
+              <tr>
+                <td><strong>Employment Type:</strong></td>
+                <td>{jobDetails.employmentType}</td>
+              </tr>
+              <tr>
+                <td><strong>Workplace Type:</strong></td>
+                <td>{jobDetails.jobLocation}</td>
+              </tr>
+              <tr>
+                <td><strong>Travel Frequency:</strong></td>
+                <td>{jobDetails.travelFrequency}</td>
+              </tr>
+              <tr>
+                <td><strong>Employee Group:</strong></td>
+                <td>{jobDetails.employeeGroup}</td>
+              </tr>
+              <tr>
+                <td><strong>Company Description:</strong></td>
+                <td>{jobDetails.companyDescription}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-      </div>
-      <div className="job-description">
-        <h2>Job Description</h2>
-        <p><strong>Competition ID:</strong> {jobDetails.competitionId}</p>
-        <p><strong>Internal Closing Date:</strong> {jobDetails.internalClosingDate}</p>
-        <p><strong>External Closing Date:</strong> {jobDetails.externalClosingDate}</p>
-        <p><strong># of Openings:</strong> {jobDetails.numPeople}</p>
-        <p><strong>Pay Level:</strong> {jobDetails.payLevel}</p>
-        <p><strong>Employment Type:</strong> {jobDetails.employmentType}</p>
-        <p><strong>Workplace Type:</strong> {jobDetails.jobLocation}</p>
-        <p><strong>Travel Frequency:</strong> {jobDetails.travelFrequency}</p>
-        <p><strong>Employee Group:</strong> {jobDetails.employeeGroup}</p>
-        <p><strong>Company Description:</strong> {jobDetails.companyDescription}</p>
-      </div>
-      <div className="contact-information">
-        <h2>Contact Information</h2>
-        <p>{jobDetails.contactInformation}</p>
+        <div className="contact-information">
+          <h2>Contact Information</h2>
+          <p>{jobDetails.contactInformation}</p>
+        </div>
       </div>
     </div>
   );

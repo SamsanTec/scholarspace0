@@ -32,6 +32,7 @@
   .profile-initials {
     width: 35px;
     height: 35px;
+    border:none !important;
     border-radius: 50%;
     background-color: #00509e; /* Lighter blue background for initials */
     color: white;
