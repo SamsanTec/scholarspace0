@@ -5,7 +5,7 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const multer = require('multer');
 const { v1: uuidv1 } = require('uuid');
-const { uploadFileToAzure } = require('./azureStorage'); // Import from azureStorage.js
+const { uploadFileToAzure } = require('./azureStorage');
 const app = express();
 const port = process.env.SERVER_PORT || 3000;
 
@@ -188,20 +188,24 @@ app.delete('/jobs/:jobId', (req, res) => {
 });
 
 // Route to handle job applications
-app.post('/apply-job', upload.fields([{ name: 'resume' }, { name: 'coverLetter' }]), async (req, res) => {
+app.post('/apply-job/:jobId', upload.fields([{ name: 'resume' }, { name: 'coverLetter' }]), async (req, res) => {
     try {
+        // Capture jobId from the URL parameters
+        const { jobId } = req.params;
+
         // Extract and parse the form data
         const {
-            jobId,
-            userId,
-            personalInfo,
-            education,
-            experience,
-            positionDetails
+            firstName,
+            lastName,
+            email,
+            phoneNumber,
+            address,
+            position,
+            desiredCompensation
         } = JSON.parse(req.body.formData);
 
         // Validate inputs
-        if (!jobId || !userId || !personalInfo || !education || !experience || !positionDetails) {
+        if (!firstName || !lastName || !email || !phoneNumber || !address || !position || !desiredCompensation) {
             return res.status(400).json({ message: 'Missing required fields.' });
         }
 
@@ -210,28 +214,30 @@ app.post('/apply-job', upload.fields([{ name: 'resume' }, { name: 'coverLetter' 
         const coverLetter = req.files['coverLetter'] ? req.files['coverLetter'][0] : null;
 
         // Upload the resume to Azure Blob Storage
-        const resumeUrl = resume ? await uploadFileToAzure(resume.buffer, resume.originalname) : null;
+        const resumePath = resume ? await uploadFileToAzure(resume.buffer, resume.originalname) : null;
 
         // Upload the cover letter to Azure Blob Storage, if provided
-        const coverLetterUrl = coverLetter ? await uploadFileToAzure(coverLetter.buffer, coverLetter.originalname) : null;
+        const coverLetterPath = coverLetter ? await uploadFileToAzure(coverLetter.buffer, coverLetter.originalname) : null;
 
-        // Insert application data into the database
+        // Insert application data into the database, including jobId
         const query = `
             INSERT INTO applications 
-            (jobId, userId, resumePath, coverLetterPath, personalInfo, education, experience, positionDetails) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            (jobId, firstName, lastName, email, phoneNumber, address, position, desiredCompensation, resumePath, coverLetterPath) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         // Execute the database query
         db.execute(query, [
             jobId,
-            userId,
-            resumeUrl,
-            coverLetterUrl,
-            JSON.stringify(personalInfo),   // Store personalInfo as a JSON string
-            JSON.stringify(education),      // Store education as a JSON string
-            JSON.stringify(experience),     // Store experience as a JSON string
-            JSON.stringify(positionDetails) // Store positionDetails as a JSON string
+            firstName,
+            lastName,
+            email,
+            phoneNumber,
+            address,
+            position,
+            desiredCompensation,
+            resumePath,
+            coverLetterPath
         ], (err, results) => {
             if (err) {
                 console.error('Error inserting application data:', err.stack);
@@ -245,67 +251,64 @@ app.post('/apply-job', upload.fields([{ name: 'resume' }, { name: 'coverLetter' 
     }
 });
 
-// Route to handle fetching job applications for an employer
-app.get('/applications/:employerId', (req, res) => {
-    const employerId = req.params.employerId;
+// Route to get all applications for a specific job
+app.get('/applications/job/:jobId', async (req, res) => {
+    const { jobId } = req.params;
 
-    const query = `
-        SELECT applications.*, jobs.jobTitle, users.email 
-        FROM applications 
-        JOIN jobs ON applications.jobId = jobs.id 
-        JOIN users ON applications.userId = users.id 
-        WHERE jobs.user_id = ?
-    `;
+    if (!jobId) {
+        return res.status(400).json({ message: 'Job ID is required.' });
+    }
 
-    db.execute(query, [employerId], (err, results) => {
-        if (err) {
-            console.error('Error fetching applications:', err.stack);
-            return res.status(500).json({ message: 'Error fetching applications.' });
-        }
+    try {
+        const query = 'SELECT * FROM applications WHERE jobId = ?';
 
-        // Parse JSON strings back into objects for easier front-end processing
-        const applications = results.map(application => ({
-            ...application,
-            personalInfo: JSON.parse(application.personalInfo),
-            education: JSON.parse(application.education),
-            experience: JSON.parse(application.experience),
-            positionDetails: JSON.parse(application.positionDetails)
-        }));
+        db.execute(query, [jobId], (err, results) => {
+            if (err) {
+                console.error('Error fetching applications:', err.stack);
+                return res.status(500).json({ message: 'Internal server error while fetching applications.' });
+            }
 
-        res.json(applications);
-    });
+            if (results.length === 0) {
+                return res.status(404).json({ message: 'No applications found for this job.' });
+            }
+
+            res.json(results);
+        });
+    } catch (error) {
+        console.error('Error processing request:', error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
 });
 
-// Route to handle fetching application details
-app.get('/applications/details/:applicationId', (req, res) => {
+// Route to get details of a specific application
+app.get('/applications/:applicationId', async (req, res) => {
     const { applicationId } = req.params;
 
-    const query = `
-        SELECT applications.*, users.email, jobs.jobTitle 
-        FROM applications 
-        JOIN users ON applications.userId = users.id 
-        JOIN jobs ON applications.jobId = jobs.id 
-        WHERE applications.id = ?
-    `;
+    if (!applicationId) {
+        return res.status(400).json({ message: 'Application ID is required.' });
+    }
 
-    db.execute(query, [applicationId], (err, results) => {
-        if (err) {
-            console.error('Error fetching application details:', err.stack);
-            return res.status(500).json({ message: 'Error fetching application details.' });
-        }
-        if (results.length > 0) {
-            // Parse JSON strings back into objects for easier front-end processing
-            const application = results[0];
-            application.personalInfo = JSON.parse(application.personalInfo);
-            application.education = JSON.parse(application.education);
-            application.experience = JSON.parse(application.experience);
-            application.positionDetails = JSON.parse(application.positionDetails);
-            res.json(application);
-        } else {
-            res.status(404).json({ message: 'Application not found.' });
-        }
-    });
+    try {
+        const query = 'SELECT * FROM applications WHERE id = ?';
+
+        db.execute(query, [applicationId], (err, results) => {
+            if (err) {
+                console.error('Error fetching application details:', err.stack);
+                return res.status(500).json({ message: 'Internal server error while fetching application details.' });
+            }
+
+            if (results.length === 0) {
+                return res.status(404).json({ message: 'Application not found.' });
+            }
+
+            res.json(results[0]);
+        });
+    } catch (error) {
+        console.error('Error processing request:', error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
 });
+
 
 
 // Route to fetch all employers
@@ -456,6 +459,82 @@ app.get('/users', (req, res) => {
             return res.status(500).json({ message: 'Error fetching users.' });
         }
         res.json(results);
+    });
+});
+
+// Route for fetching user profile
+app.get('/profile/:userId', (req, res) => {
+    const { userId } = req.params;
+    const query = `
+        SELECT users.id, users.userType, students.fullName, employers.companyName, admins.adminName 
+        FROM users 
+        LEFT JOIN students ON users.id = students.user_id 
+        LEFT JOIN employers ON users.id = employers.user_id 
+        LEFT JOIN admins ON users.id = admins.user_id 
+        WHERE users.id = ?
+    `;
+
+    db.execute(query, [userId], (err, results) => {
+        if (err) {
+            console.error('Error fetching profile data: ' + err.stack);
+            res.status(500).send('Error fetching profile data.');
+            return;
+        }
+        if (results.length > 0) {
+            const { id, userType, fullName, companyName, adminName } = results[0];
+            const name = fullName || companyName || adminName;
+            res.json({ userId: id, userType, name });
+        } else {
+            res.status(404).send('User not found.');
+        }
+    });
+});
+
+// Handling resume upload
+app.put('/profile/:userId', upload.fields([{ name: 'profilePicture' }, { name: 'resume' }]), async (req, res) => {
+    const { userId } = req.params;
+    const { address, phone } = req.body;
+    let profilePictureUrl = null;
+    let resumeUrl = null;
+
+    console.log('Received data:', { userId, address, phone }); // Debugging line
+
+    // Upload profile picture to Azure if provided
+    if (req.files['profilePicture']) {
+        try {
+            const file = req.files['profilePicture'][0];
+            profilePictureUrl = await uploadFileToAzure(file.buffer, file.originalname);
+            console.log('Profile picture uploaded to:', profilePictureUrl);
+        } catch (error) {
+            console.error('Error uploading profile picture:', error);
+            return res.status(500).send('Error uploading profile picture.');
+        }
+    }
+
+    // Upload resume to Azure if provided
+    if (req.files['resume']) {
+        try {
+            const file = req.files['resume'][0];
+            resumeUrl = await uploadFileToAzure(file.buffer, file.originalname);
+            console.log('Resume uploaded to:', resumeUrl);
+        } catch (error) {
+            console.error('Error uploading resume:', error);
+            return res.status(500).send('Error uploading resume.');
+        }
+    }
+
+    const query = `
+        UPDATE users 
+        SET address = ?, phone = ?, profilePicture = ?, resume = ? 
+        WHERE id = ?
+    `;
+
+    db.execute(query, [address, phone, profilePictureUrl, resumeUrl, userId], (err) => {
+        if (err) {
+            console.error('Error updating profile:', err.stack);
+            return res.status(500).send('Error updating profile.');
+        }
+        res.json({ message: 'Profile updated successfully!' });
     });
 });
 
