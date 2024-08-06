@@ -15,8 +15,39 @@ const EmployerAuthPage = ({ apiUrl }) => {
   const [showError, setShowError] = useState(false);
   const navigate = useNavigate();
 
+  const validatePassword = (password) => {
+    const errors = [];
+
+    if (password.length < 8) {
+      errors.push('Password must be at least 8 characters long.');
+    }
+    if (!/[A-Z]/.test(password)) {
+      errors.push('Password must contain at least one uppercase letter.');
+    }
+    if (!/[a-z]/.test(password)) {
+      errors.push('Password must contain at least one lowercase letter.');
+    }
+    if (!/\d/.test(password)) {
+      errors.push('Password must contain at least one number.');
+    }
+    if (!/[!@#$%^&*]/.test(password)) {
+      errors.push('Password must contain at least one special character (!@#$%^&*).');
+    }
+
+    return errors.length > 0 ? errors : null;
+  };
+
   const handleAuth = async (e) => {
     e.preventDefault();
+    if (!isLogin) {
+      const passwordErrors = validatePassword(password);
+      if (passwordErrors) {
+        setError(passwordErrors.join('\n'));
+        setShowError(true);
+        return;
+      }
+    }
+
     const url = isLogin ? `${apiUrl}/login` : `${apiUrl}/signup`;
     const data = isLogin
       ? { email, password, userType: 'employer' }
@@ -36,17 +67,17 @@ const EmployerAuthPage = ({ apiUrl }) => {
         setUser({
           userId: result.userId,
           userType: 'employer',
-          name: result.name,
+          name: result.companyName,
         });
         navigate('/employer/dashboard');
       } else {
-        const errorMessage = await response.text();
-        setError(errorMessage);
+        const errorData = await response.json();
+        setError(errorData.message || 'An error occurred during sign up.');
         setShowError(true);
       }
     } catch (error) {
       console.error('Error:', error);
-      setError('An unexpected error occurred. Please try again.');
+      setError('This email is already registered. Please sign in.');
       setShowError(true);
     }
   };
@@ -116,7 +147,7 @@ const EmployerAuthPage = ({ apiUrl }) => {
       <button className="toggle-button" onClick={toggleAuthMode}>
         {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'}
       </button>
-      {showError && <CustomErrorMessage message={error} onClose={closeError} />}
+      {showError && <CustomErrorMessage message={error.split('\n').map((msg, idx) => <span key={idx}>{msg}<br/></span>)} onClose={closeError} />}
     </div>
   );
 };

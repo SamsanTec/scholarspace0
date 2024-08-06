@@ -1,0 +1,79 @@
+/* Container for the privacy policy page */
+/* Privacy Policy Header Bar */
+.privacy-policy-header {
+    background-color: #003366; /* Dark blue background */
+    color: #ffffff;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .privacy-policy-header h1 {
+    margin: 0;
+    font-size: 2em;
+    font-weight: bold;
+  }
+
+.privacy-policy-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px;
+    background-color: #ffffff; /* White background */
+    color: #070707; /* Dark blue text */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Center-align main headings */
+  .privacy-policy-container h1,
+  .privacy-policy-container h2 {
+    color: #1e3a8a; /* Dark blue headings */
+    margin-bottom: 20px;
+    text-align: center; /* Center-aligned headings */
+  }
+  
+  /* Center-align larger paragraphs */
+  .privacy-policy-container p {
+    text-align: left; /* Center-aligned text */
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  
+  /* Left-align sub-points (e.g., 1.1, 1.2) */
+  .privacy-policy-container ul {
+    list-style-type: none;
+    margin-left: 0;
+    padding-left: 0;
+    margin-bottom: 20px;
+  }
+  
+  .privacy-policy-container ul li {
+    margin-bottom: 10px;
+    color: #060607; /* Dark blue text */
+    text-align: left; /* Left-aligned list items */
+  }
+  
+  /* Styling for sub-point numbers (e.g., 1.1, 1.2) */
+  .privacy-policy-container ul li::before {
+    content: counter(section) ".";
+    counter-increment: section;
+    margin-right: 10px;
+    font-weight: bold;
+  }
+  
+  /* Nested list styling */
+  .privacy-policy-container ul li ul {
+    list-style-type: none;
+    margin-left: 20px;
+    padding-left: 20px;
+  }
+  
+  .privacy-policy-container ul li ul li {
+    text-align: left; /* Left-aligned nested list items */
+  }
+  
+  /* Ensure counters reset at each new section */
+  .privacy-policy-container ul {
+    counter-reset: section;
+  }
+  

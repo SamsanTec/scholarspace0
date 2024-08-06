@@ -53,39 +53,58 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/signup', (req, res) => {
-    const { email, password, userType, fullName, studentNumber, companyName, companyAddress } = req.body;
-    const query = 'INSERT INTO users (email, password, userType) VALUES (?, ?, ?)';
+    const { email, password, userType, fullName, studentNumber } = req.body;
 
-    db.execute(query, [email, password, userType], (err, results) => {
+    // First, check if the email already exists in the database
+    const checkEmailQuery = 'SELECT * FROM users WHERE email = ?';
+
+    db.execute(checkEmailQuery, [email], (err, results) => {
         if (err) {
-            console.error('Error inserting data: ' + err.stack);
-            res.status(500).send('Error signing up.');
-            return;
+            console.error('Error checking email:', err.stack);
+            return res.status(500).json({ message: 'Error checking email.' });
         }
-        const userId = results.insertId;
-        if (userType === 'student') {
-            const studentQuery = 'INSERT INTO students (user_id, fullName, studentNumber) VALUES (?, ?, ?)';
-            db.execute(studentQuery, [userId, fullName, studentNumber], (err) => {
-                if (err) {
-                    console.error('Error inserting student data: ' + err.stack);
-                    res.status(500).send('Error signing up.');
-                    return;
-                }
-                res.json({ userId, userType, fullName });
-            });
-        } else if (userType === 'employer') {
-            const employerQuery = 'INSERT INTO employers (user_id, companyName, companyAddress) VALUES (?, ?, ?)';
-            db.execute(employerQuery, [userId, companyName, companyAddress], (err) => {
-                if (err) {
-                    console.error('Error inserting employer data: ' + err.stack);
-                    res.status(500).send('Error signing up.');
-                    return;
-                }
-                res.json({ userId, userType, companyName });
-            });
+
+        if (results.length > 0) {
+            // Email already exists
+            return res.status(400).json({ message: 'This email is already registered. Please sign in.' });
         }
+
+        // If the email does not exist, proceed with sign-up
+        const insertUserQuery = 'INSERT INTO users (email, password, userType) VALUES (?, ?, ?)';
+
+        db.execute(insertUserQuery, [email, password, userType], (err, results) => {
+            if (err) {
+                console.error('Error inserting user data:', err.stack);
+                return res.status(500).json({ message: 'Error signing up.' });
+            }
+
+            const userId = results.insertId;
+
+            if (userType === 'student') {
+                const insertStudentQuery = 'INSERT INTO students (user_id, fullName, studentNumber) VALUES (?, ?, ?)';
+                db.execute(insertStudentQuery, [userId, fullName, studentNumber], (err) => {
+                    if (err) {
+                        console.error('Error inserting student data:', err.stack);
+                        return res.status(500).json({ message: 'Error signing up.' });
+                    }
+                    res.json({ userId, userType, fullName });
+                });
+            }
+
+            if (userType === 'employer') {
+                const insertEmployerQuery = 'INSERT INTO employers (user_id, companyName, companyAddress) VALUES (?, ?, ?)';
+                db.execute(insertEmployerQuery, [userId, companyName, companyAddress], (err) => {
+                    if (err) {
+                        console.error('Error inserting employer data:', err.stack);
+                        return res.status(500).json({ message: 'Error signing up.' });
+                    }
+                    res.json({ userId, userType, companyName });
+                });
+            }
+        });
     });
 });
+
 
 app.post('/post-job', (req, res) => {
     const { jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, jobCategory, companyName, contactInformation, userId } = req.body;
@@ -209,7 +228,6 @@ app.post('/apply-job/:jobId', upload.fields([{ name: 'resume' }, { name: 'coverL
             return res.status(400).json({ message: 'Missing required fields.' });
         }
 
-        // Extract resume and cover letter from the files array
         const resume = req.files['resume'] ? req.files['resume'][0] : null;
         const coverLetter = req.files['coverLetter'] ? req.files['coverLetter'][0] : null;
 
@@ -226,7 +244,6 @@ app.post('/apply-job/:jobId', upload.fields([{ name: 'resume' }, { name: 'coverL
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
-        // Execute the database query
         db.execute(query, [
             jobId,
             firstName,

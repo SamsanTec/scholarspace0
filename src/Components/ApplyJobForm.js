@@ -8,6 +8,8 @@ const ApplyJobForm = ({ apiUrl }) => {
 
   // State to manage form data
   const [formData, setFormData] = useState({
+    jobId: jobId, // Assuming jobId is passed as a prop
+    userId: userId, // Assuming userId is passed as a prop or retrieved from context
     firstName: '',
     lastName: '',
     email: '',
@@ -85,18 +87,39 @@ const ApplyJobForm = ({ apiUrl }) => {
         body: formPayload,
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText);
-      }
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText);
+        }
 
-      setSubmissionSuccess(true);
-      setTimeout(() => {
-        navigate('/student/dashboard');
-      }, 3000);
+        setSubmissionSuccess(true);
+        setTimeout(() => {
+            navigate('/student/dashboard');
+        }, 3000);
     } catch (error) {
-      console.error('Error during form submission:', error);
-      alert(`Error: ${error.message}`);
+        console.error('Error during form submission:', error);
+        alert(`Error: ${error.message}`);
+    }
+};
+
+
+  // Render the current step
+  const renderStep = () => {
+    switch (currentStep) {
+      case 1:
+        return renderPersonalInformationForm();
+      case 2:
+        return renderPositionAvailabilityForm();
+      case 3:
+        return renderEducationForm();
+      case 4:
+        return renderExperienceForm();
+      case 5:
+        return renderReferencesForm();
+      case 6:
+        return renderCertificationForm();
+      default:
+        return null;
     }
   };
 

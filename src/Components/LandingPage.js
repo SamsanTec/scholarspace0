@@ -34,7 +34,7 @@ const LandingPage = () => {
       <footer className="footer">
         <p>Powered by ScholarSpace</p>
         <p>
-          <a href="/privacy">Privacy Policy</a> | <a href="/terms">Terms of Use</a>
+        <Link to="/privacy-policy">Privacy Policy</Link> 
         </p>
       </footer>
     </div>
