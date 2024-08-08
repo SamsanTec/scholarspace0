@@ -106,6 +106,7 @@ app.post('/signup', (req, res) => {
 });
 
 
+// Route to post a new job
 app.post('/post-job', (req, res) => {
     const { jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, jobCategory, companyName, contactInformation, userId } = req.body;
 
@@ -132,6 +133,7 @@ app.post('/post-job', (req, res) => {
     });
 });
 
+// Route to update a job by ID
 app.put('/jobs/:jobId', (req, res) => {
     const { jobId } = req.params;
     const { jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, jobCategory, companyName, contactInformation } = req.body;
@@ -151,6 +153,7 @@ app.put('/jobs/:jobId', (req, res) => {
     });
 });
 
+// Route to get all jobs posted by a specific employer (by userId)
 app.get('/jobs/employer/:userId', (req, res) => {
     const userId = req.params.userId;
 
@@ -164,6 +167,7 @@ app.get('/jobs/employer/:userId', (req, res) => {
     });
 });
 
+// Route to get all jobs
 app.get('/jobs', (req, res) => {
     const query = 'SELECT * FROM jobs';
     db.execute(query, (err, results) => {
@@ -175,6 +179,7 @@ app.get('/jobs', (req, res) => {
     });
 });
 
+// Route to get a specific job by ID
 app.get('/jobs/:jobId', (req, res) => {
     const { jobId } = req.params;
 
@@ -192,6 +197,7 @@ app.get('/jobs/:jobId', (req, res) => {
     });
 });
 
+// Route to delete a specific job by ID
 app.delete('/jobs/:jobId', (req, res) => {
     const { jobId } = req.params;
 
@@ -205,6 +211,7 @@ app.delete('/jobs/:jobId', (req, res) => {
         res.json({ message: 'Job deleted successfully!' });
     });
 });
+
 
 // Route to handle job applications
 app.post('/apply-job/:jobId', upload.fields([{ name: 'resume' }, { name: 'coverLetter' }]), async (req, res) => {

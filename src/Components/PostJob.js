@@ -21,14 +21,18 @@ const PostJob = ({ apiUrl }) => {
   const [jobCategory, setJobCategory] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [contactInformation, setContactInformation] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleInputChange = (setter) => (e) => setter(e.target.value);
 
   const handlePayLevelChange = (e) => {
-    const value = Math.max(15, Math.min(50, Number(e.target.value)));
+    const value = e.target.value === '' ? '' : Math.max(15, Math.min(50, Number(e.target.value)));
     setPayLevel(value);
   };
 
   const handleNext = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     const jobDetails = {
       jobTitle,
@@ -36,7 +40,7 @@ const PostJob = ({ apiUrl }) => {
       jobLocation,
       streetAddress,
       companyDescription,
-      userId: user.userId,
+      userId: user?.userId || null,
       competitionId,
       internalClosingDate,
       externalClosingDate,
@@ -47,6 +51,13 @@ const PostJob = ({ apiUrl }) => {
       companyName,
       contactInformation,
     };
+
+    // Custom validation example: ensure internal date is before external date
+    if (internalClosingDate && externalClosingDate && new Date(internalClosingDate) > new Date(externalClosingDate)) {
+      alert('Internal closing date should be before external closing date.');
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const response = await fetch(`${apiUrl}/post-job`, {
@@ -69,6 +80,8 @@ const PostJob = ({ apiUrl }) => {
     } catch (error) {
       console.error('Error:', error);
       alert('An error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -83,7 +96,7 @@ const PostJob = ({ apiUrl }) => {
             id="jobTitle" 
             name="jobTitle" 
             value={jobTitle}
-            onChange={(e) => setJobTitle(e.target.value)}
+            onChange={handleInputChange(setJobTitle)}
             required 
           />
         </div>
@@ -93,7 +106,7 @@ const PostJob = ({ apiUrl }) => {
             id="numPeople" 
             name="numPeople" 
             value={numPeople}
-            onChange={(e) => setNumPeople(e.target.value)}
+            onChange={handleInputChange(setNumPeople)}
             required
           >
             <option value="">Select an option</option>
@@ -108,7 +121,7 @@ const PostJob = ({ apiUrl }) => {
             id="jobLocation" 
             name="jobLocation" 
             value={jobLocation}
-            onChange={(e) => setJobLocation(e.target.value)}
+            onChange={handleInputChange(setJobLocation)}
             required
           >
             <option value="">Select an option</option>
@@ -124,7 +137,7 @@ const PostJob = ({ apiUrl }) => {
             id="streetAddress" 
             name="streetAddress" 
             value={streetAddress}
-            onChange={(e) => setStreetAddress(e.target.value)}
+            onChange={handleInputChange(setStreetAddress)}
             required 
           />
         </div>
@@ -135,7 +148,7 @@ const PostJob = ({ apiUrl }) => {
             name="companyDescription" 
             rows="4" 
             value={companyDescription}
-            onChange={(e) => setCompanyDescription(e.target.value)}
+            onChange={handleInputChange(setCompanyDescription)}
           />
         </div>
         <div className="form-group">
@@ -145,7 +158,7 @@ const PostJob = ({ apiUrl }) => {
             id="competitionId" 
             name="competitionId" 
             value={competitionId}
-            onChange={(e) => setCompetitionId(e.target.value)}
+            onChange={handleInputChange(setCompetitionId)}
           />
         </div>
         <div className="form-group">
@@ -155,7 +168,7 @@ const PostJob = ({ apiUrl }) => {
             id="internalClosingDate" 
             name="internalClosingDate" 
             value={internalClosingDate}
-            onChange={(e) => setInternalClosingDate(e.target.value)}
+            onChange={handleInputChange(setInternalClosingDate)}
           />
         </div>
         <div className="form-group">
@@ -165,7 +178,7 @@ const PostJob = ({ apiUrl }) => {
             id="externalClosingDate" 
             name="externalClosingDate" 
             value={externalClosingDate}
-            onChange={(e) => setExternalClosingDate(e.target.value)}
+            onChange={handleInputChange(setExternalClosingDate)}
           />
         </div>
         <div className="form-group">
@@ -187,7 +200,7 @@ const PostJob = ({ apiUrl }) => {
             id="employmentType" 
             name="employmentType" 
             value={employmentType}
-            onChange={(e) => setEmploymentType(e.target.value)}
+            onChange={handleInputChange(setEmploymentType)}
             required
           >
             <option value="">Select an option</option>
@@ -203,7 +216,7 @@ const PostJob = ({ apiUrl }) => {
             id="travelFrequency" 
             name="travelFrequency" 
             value={travelFrequency}
-            onChange={(e) => setTravelFrequency(e.target.value)}
+            onChange={handleInputChange(setTravelFrequency)}
             required
           >
             <option value="">Select an option</option>
@@ -218,7 +231,7 @@ const PostJob = ({ apiUrl }) => {
             id="jobCategory" 
             name="jobCategory" 
             value={jobCategory}
-            onChange={(e) => setJobCategory(e.target.value)}
+            onChange={handleInputChange(setJobCategory)}
             required
           >
             <option value="">Select an option</option>
@@ -240,7 +253,7 @@ const PostJob = ({ apiUrl }) => {
             id="companyName" 
             name="companyName" 
             value={companyName}
-            onChange={(e) => setCompanyName(e.target.value)}
+            onChange={handleInputChange(setCompanyName)}
           />
         </div>
         <div className="form-group">
@@ -250,10 +263,12 @@ const PostJob = ({ apiUrl }) => {
             name="contactInformation" 
             rows="4" 
             value={contactInformation}
-            onChange={(e) => setContactInformation(e.target.value)}
+            onChange={handleInputChange(setContactInformation)}
           />
         </div>
-        <button type="submit">Next</button>
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Submitting...' : 'Next'}
+        </button>
       </form>
     </div>
   );

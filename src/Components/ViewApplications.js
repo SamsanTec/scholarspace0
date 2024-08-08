@@ -17,7 +17,7 @@ const ViewApplications = ({ apiUrl }) => {
           throw new Error('User not authenticated');
         }
 
-        // Fetch applications from the server with the userId as a query parameter
+        // Fetch applications for the specific job and user
         const response = await fetch(`${apiUrl}/applications/job/${jobId}?userId=${user.userId}`);
 
         if (!response.ok) {
@@ -56,6 +56,7 @@ const ViewApplications = ({ apiUrl }) => {
           <Link to={`/employer/application-details/${app.id}`} key={app.id} className="application-card">
             <h3>{app.firstName} {app.lastName}</h3>
             <p><strong>Email:</strong> {app.email}</p>
+            <p><strong>Desired Compensation:</strong> {app.desiredCompensation}</p>
           </Link>
         ))}
       </div>
