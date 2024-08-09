@@ -53,7 +53,7 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/signup', (req, res) => {
-    const { email, password, userType, fullName, studentNumber } = req.body;
+    const { email, password, userType, fullName, studentNumber, companyName, companyAddress } = req.body;
 
     // First, check if the email already exists in the database
     const checkEmailQuery = 'SELECT * FROM users WHERE email = ?';
@@ -89,9 +89,7 @@ app.post('/signup', (req, res) => {
                     }
                     res.json({ userId, userType, fullName });
                 });
-            }
-
-            if (userType === 'employer') {
+            } else if (userType === 'employer') {
                 const insertEmployerQuery = 'INSERT INTO employers (user_id, companyName, companyAddress) VALUES (?, ?, ?)';
                 db.execute(insertEmployerQuery, [userId, companyName, companyAddress], (err) => {
                     if (err) {
@@ -100,10 +98,14 @@ app.post('/signup', (req, res) => {
                     }
                     res.json({ userId, userType, companyName });
                 });
+            } else {
+                // Handle other user types if necessary
+                res.status(400).json({ message: 'Invalid user type.' });
             }
         });
     });
 });
+
 
 
 // Route to post a new job
@@ -392,6 +394,38 @@ app.patch('/applications/:applicationId/status', (req, res) => {
     });
   });
   
+
+  // Route to fetch applied jobs for a user
+app.get('/applied-jobs', async (req, res) => {
+    try {
+        const { userId } = req.query; // Assuming userId is passed as a query parameter
+
+        if (!userId) {
+            return res.status(400).json({ message: 'User ID is required.' });
+        }
+
+        // Join applications with jobs to fetch detailed job information
+        const query = `
+            SELECT jobs.id AS jobId, jobs.title AS jobTitle, jobs.companyName, jobs.location AS jobLocation, 
+                   applications.resumePath, applications.coverLetterPath, applications.applyDate
+            FROM applications
+            INNER JOIN jobs ON applications.jobId = jobs.id
+            WHERE applications.userId = ?
+        `;
+
+        db.execute(query, [userId], (err, results) => {
+            if (err) {
+                console.error('Error fetching applied jobs:', err.stack);
+                return res.status(500).json({ message: 'Error fetching applied jobs.' });
+            }
+            res.json(results);
+        });
+    } catch (error) {
+        console.error('Error processing request:', error);
+        res.status(500).json({ message: 'Error fetching applied jobs.' });
+    }
+});
+
 
 // Route to fetch all employers
 app.get('/employers', (req, res) => {

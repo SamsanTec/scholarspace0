@@ -25,7 +25,6 @@ const NavbarStudent = () => {
       <div className="navbar-links">
         <Link to="/student/dashboard">Dashboard</Link>
         <Link to="/jobs">Jobs</Link>
-        
         <Link to="/employers">Employers</Link>
         <Link to="/courses">Courses</Link>
         <Link to="/profile">Profile</Link>

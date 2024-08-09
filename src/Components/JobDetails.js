@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import NavbarStudent from './NavbarStudent'; // Assuming you have a Navbar component
+import NavbarStudent from './NavbarStudent'; 
+import { UserContext } from './UserContext'; // Assuming you have a UserContext
 import './JobDetails.css';
 
 const JobDetails = ({ apiUrl }) => {
@@ -8,7 +9,9 @@ const JobDetails = ({ apiUrl }) => {
   const [jobDetails, setJobDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [alreadyApplied, setAlreadyApplied] = useState(false);
   const navigate = useNavigate();
+  const { user } = useContext(UserContext); // Access user from context
 
   useEffect(() => {
     const fetchJobDetails = async () => {
@@ -27,8 +30,80 @@ const JobDetails = ({ apiUrl }) => {
       }
     };
 
+    const checkIfAlreadyApplied = async () => {
+      if (user && user.userId) {
+        try {
+          const response = await fetch(`${apiUrl}/applications?userId=${user.userId}&jobId=${jobId}`);
+          if (!response.ok) {
+            throw new Error('Failed to check application status');
+          }
+          const result = await response.json();
+          setAlreadyApplied(result.length > 0); // Assuming the API returns an array of applications
+        } catch (error) {
+          console.error('Error checking application status:', error);
+        }
+      }
+    };
+
     fetchJobDetails();
-  }, [jobId, apiUrl]);
+    checkIfAlreadyApplied();
+  }, [jobId, apiUrl, user]);
+
+  const handleSave = () => {
+    if (!user || !user.userId) {
+      alert('You need to be logged in to save jobs.');
+      return;
+    }
+
+    const savedJobs = JSON.parse(localStorage.getItem('savedJobs')) || {};
+    const userSavedJobs = savedJobs[user.userId] || [];
+
+    const jobToSave = {
+      id: jobDetails.id,
+      jobTitle: jobDetails.jobTitle,
+      companyName: jobDetails.companyName,
+      jobLocation: jobDetails.jobLocation,
+    };
+
+    const isJobAlreadySaved = userSavedJobs.some(job => job.id === jobDetails.id);
+
+    if (!isJobAlreadySaved) {
+      userSavedJobs.push(jobToSave);
+      savedJobs[user.userId] = userSavedJobs;
+      localStorage.setItem('savedJobs', JSON.stringify(savedJobs));
+      alert('Job saved!');
+    } else {
+      alert('Job is already saved!');
+    }
+  };
+
+  const handleApply = () => {
+    if (!user || !user.userId) {
+      alert('You need to be logged in to apply for jobs.');
+      return;
+    }
+
+    // The check for application has already been done in useEffect.
+    if (alreadyApplied) {
+      alert('You have already applied for this job!');
+      return;
+    }
+
+    const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs')) || {};
+    const userAppliedJobs = appliedJobs[user.userId] || [];
+
+    const jobToApply = {
+      id: jobDetails.id,
+      jobTitle: jobDetails.jobTitle,
+      companyName: jobDetails.companyName,
+      jobLocation: jobDetails.jobLocation,
+    };
+
+    userAppliedJobs.push(jobToApply);
+    appliedJobs[user.userId] = userAppliedJobs;
+    localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
+    navigate(`/apply-job/${jobId}`); // Redirect after successful application
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -42,17 +117,9 @@ const JobDetails = ({ apiUrl }) => {
     return <div>No job details found.</div>;
   }
 
-  const handleSave = () => {
-    alert('Job saved!');
-  };
-
-  const handleApply = () => {
-    navigate(`/apply-job/${jobId}`);
-  };
-
   return (
     <div className="job-details-page">
-      <NavbarStudent /> {/* Include the navbar at the top */}
+      <NavbarStudent />
       <div className="job-details-container">
         <div className="job-header">
           <div className="job-header-left">
@@ -65,7 +132,13 @@ const JobDetails = ({ apiUrl }) => {
           </div>
           <div className="job-header-right">
             <button className="save-button" onClick={handleSave}>Save</button>
-            <button className="apply-button" onClick={handleApply}>Apply</button>
+            <button
+              className="apply-button"
+              onClick={handleApply}
+              disabled={alreadyApplied}
+            >
+              {alreadyApplied ? 'Already Applied' : 'Apply'}
+            </button>
           </div>
         </div>
         <div className="job-description">

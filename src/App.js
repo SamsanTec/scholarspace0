@@ -32,6 +32,8 @@ import CourseDetails from './Components/CourseDetails';
 import { UserProvider } from './Components/UserContext';
 import { JobProvider } from './Components/JobContext';
 import PrivacyPolicy from './Components/PrivacyPolicy';
+import SavedJobs from './Components/SavedJobs';
+import AppliedJobs from './Components/AppliedJobs';
 import './App.css';
 
 const App = () => {
@@ -57,6 +59,8 @@ const App = () => {
               <Route path="/job-details/:jobId" element={<JobDetails apiUrl={apiUrl} />} />
               <Route path="/courses" element={<Courses apiUrl={apiUrl}/>} />
               <Route path="/courses/:courseId" element={<CourseDetails />} />
+              <Route path="/saved" element={<SavedJobs apiUrl={apiUrl} />} />
+              <Route path="/applied" element={<AppliedJobs apiUrl={apiUrl} />} />
 
               {/* Employer Routes */}
               <Route path="/employer/dashboard" element={<EmployerDashboard apiUrl={apiUrl} />} />

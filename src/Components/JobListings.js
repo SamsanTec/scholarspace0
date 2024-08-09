@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import NavbarStudent from './NavbarStudent';
 import './JobListings.css';
 
-
 const JobListings = ({ apiUrl }) => {
   const [jobs, setJobs] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([]);
@@ -59,9 +58,14 @@ const JobListings = ({ apiUrl }) => {
   return (
     <div className="job-listings-container">
       <NavbarStudent />
-      <NavbarStudent />
       <main className="dashboard-main">
-        <h2>Job Listings</h2>
+        <div className="job-listings-header">
+          <h2>Job Listings</h2>
+          <div className="job-listings-links">
+            <Link to="/saved" className="job-listings-link">Saved</Link>
+            <Link to="/applied" className="job-listings-link">Applied</Link>
+          </div>
+        </div>
         <div className="job-filters">
           <input
             type="text"
@@ -121,7 +125,6 @@ const JobListings = ({ apiUrl }) => {
                   <p>{job.companyName}</p>
                   <p>{job.streetAddress}</p>
                   <p>{job.employmentType}</p>
-                  <p>{job.status || 'Not Applied'}</p>
                 </div>
               </Link>
             ))

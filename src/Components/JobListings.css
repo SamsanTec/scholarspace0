@@ -1,26 +1,20 @@
-.job-cards {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px; /* Space between job cards */
-    justify-content: space-between; /* Spread out the job cards evenly */
-  }
-  
-  .job-card {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    width: calc(33.333% - 20px); /* Three cards per row with gap accounted for */
-    box-sizing: border-box;
-  }
-  
-  .job-card h3 {
-    margin-top: 0;
-    font-size: 1.5rem;
-  }
-  
-  .job-card p {
-    margin: 0.5rem 0;
-    color: #555;
-  }
-  
+.job-listings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.job-listings-links {
+  display: flex;
+  gap: 15px;
+}
+
+.job-listings-link {
+  color: #0056b3;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.job-listings-link:hover {
+  text-decoration: underline;
+}
