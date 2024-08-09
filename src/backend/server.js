@@ -533,51 +533,6 @@ app.get('/admin/active-courses', (req, res) => {
     });
 });
 
-// Fetch recent activities
-app.get('/admin/recent-activities', (req, res) => {
-    const query = `
-        SELECT 
-            activityType as description, 
-            users.email as userEmail, 
-            activityTimestamp as timestamp 
-        FROM activities 
-        JOIN users ON activities.userId = users.id 
-        ORDER BY activityTimestamp DESC 
-        LIMIT 10
-    `;
-
-    db.execute(query, (err, results) => {
-        if (err) {
-            console.error('Error fetching recent activities:', err.stack);
-            return res.status(500).json({ message: 'Error fetching recent activities.' });
-        }
-        res.json({ activities: results });
-    });
-});
-
-// Route to fetch all users
-app.get('/users', (req, res) => {
-    const query = `
-        SELECT 
-            users.id, users.email, users.userType, 
-            students.fullName, students.studentNumber,
-            employers.companyName,
-            admins.adminName
-        FROM users
-        LEFT JOIN students ON users.id = students.user_id
-        LEFT JOIN employers ON users.id = employers.user_id
-        LEFT JOIN admins ON users.id = admins.user_id
-    `;
-
-    db.execute(query, (err, results) => {
-        if (err) {
-            console.error('Error fetching users:', err.stack);
-            return res.status(500).json({ message: 'Error fetching users.' });
-        }
-        res.json(results);
-    });
-});
-
   
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
