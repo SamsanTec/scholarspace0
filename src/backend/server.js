@@ -369,26 +369,7 @@ app.get('/applications/:applicationId', async (req, res) => {
         res.status(500).json({ message: 'Internal server error.' });
     }
 });
-
-app.post('/api/interviews', async (req, res) => {
-    const { applicationId, employerId, interviewDate, notes } = req.body;
   
-    try {
-      const newInterview = await Interview.create({
-        applicationId,
-        employerId,
-        interviewDate,
-        status: 'Scheduled',
-        notes
-      });
-  
-      res.status(201).json(newInterview);
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to schedule interview' });
-    }
-  });
-  
-
 // Route to fetch all employers
 app.get('/employers', (req, res) => {
     const query = `

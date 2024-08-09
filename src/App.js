@@ -32,7 +32,6 @@ import CourseDetails from './Components/CourseDetails';
 import { UserProvider } from './Components/UserContext';
 import { JobProvider } from './Components/JobContext';
 import PrivacyPolicy from './Components/PrivacyPolicy';
-import ScheduleInterviewForm from './Components/ScheduleInterviewForm';
 import './App.css';
 
 const App = () => {
@@ -67,7 +66,6 @@ const App = () => {
               <Route path="/employer/application-details/:applicationId" element={<ApplicationDetails apiUrl={apiUrl} />} />
               <Route path="/employers" element={<EmployerList apiUrl={apiUrl} />} />
               <Route path="/employers/:employerId" element={<EmployerDetails apiUrl={apiUrl} />} />
-              <Route path="/applications/:applicationId/schedule" element={<ScheduleInterviewForm apiUrl={apiUrl} />} />
 
               {/* Admin Routes */}
               <Route path="/admin/dashboard" element={<AdminDashboard apiUrl={apiUrl} />} />
