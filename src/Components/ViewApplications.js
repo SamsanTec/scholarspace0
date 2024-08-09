@@ -1,16 +1,30 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import './ViewApplications.css';
-import { UserContext } from './UserContext'; // Import UserContext
+import { UserContext } from './UserContext';
 
 const ViewApplications = ({ apiUrl }) => {
   const { jobId } = useParams(); // Get jobId from the URL parameters
   const { user } = useContext(UserContext); // Get user from UserContext
   const [applications, setApplications] = useState([]);
+  const [jobTitle, setJobTitle] = useState(''); // State to store job title
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const fetchJobDetails = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/jobs/${jobId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch job details');
+        }
+        const jobData = await response.json();
+        setJobTitle(jobData.jobTitle); // Set the job title
+      } catch (error) {
+        setError(error.message);
+      }
+    };
+
     const fetchApplications = async () => {
       try {
         if (!user.userId) {
@@ -24,7 +38,6 @@ const ViewApplications = ({ apiUrl }) => {
           throw new Error('Failed to fetch applications');
         }
         const data = await response.json();
-        // Ensure the data is an array before setting it to state
         setApplications(Array.isArray(data) ? data : []);
       } catch (error) {
         setError(error.message);
@@ -33,6 +46,7 @@ const ViewApplications = ({ apiUrl }) => {
       }
     };
 
+    fetchJobDetails();
     fetchApplications();
   }, [apiUrl, jobId, user.userId]);
 
@@ -50,7 +64,7 @@ const ViewApplications = ({ apiUrl }) => {
 
   return (
     <div className="applications-container">
-      <h2>Applications for Job {jobId}</h2>
+      <h2>Applications for Job: {jobTitle}</h2> {/* Display job title instead of job ID */}
       <div className="application-cards">
         {applications.map(app => (
           <Link to={`/employer/application-details/${app.id}`} key={app.id} className="application-card">

@@ -1,4 +1,3 @@
-// src/components/NavbarAdmin.js
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { UserContext } from './UserContext';
@@ -13,7 +12,7 @@ const NavbarAdmin = () => {
   };
 
   return (
-    <nav className="navbar">
+    <nav className="navbar navbar-admin">
       <div className="navbar-logo">
         <img src="/path/to/logo.png" alt="Career Connection Logo" />
       </div>

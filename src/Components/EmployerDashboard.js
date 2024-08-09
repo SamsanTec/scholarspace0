@@ -1,4 +1,3 @@
-// EmployerDashboard.js
 import React, { useEffect, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { UserContext } from './UserContext';
@@ -63,8 +62,6 @@ const EmployerDashboard = ({ apiUrl }) => {
         <p>Welcome to your dashboard. Here you can post new job listings, view applications, and provide feedback on applications.</p>
         <div className="dashboard-actions">
           <Link to="/employer/post-job" className="action-button">Post Job</Link>
-          <Link to="/employer/view-applications" className="action-button">View Applications</Link>
-          <Link to="/employer/provide-feedback" className="action-button">Provide Feedback</Link>
         </div>
         <div className="job-listings">
           {jobs.map(job => (
@@ -76,6 +73,7 @@ const EmployerDashboard = ({ apiUrl }) => {
               <p><strong>Description:</strong> {job.companyDescription}</p>
               <div className="job-card-actions">
                 <Link to={`/employer/edit-job/${job.id}`} className="edit-button">Edit</Link>
+                <Link to={`/employer/view-applications/${job.id}`} className="view-applications-button">View Applications</Link>
                 <button onClick={() => handleDelete(job.id)} className="delete-button">Delete</button>
               </div>
             </div>

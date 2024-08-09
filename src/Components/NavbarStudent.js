@@ -18,7 +18,7 @@ const NavbarStudent = () => {
   };
 
   return (
-    <nav className="navbar">
+    <nav className="navbar navbar-student">
       <div className="navbar-logo">
         <img src="/path/to/logo.png" alt="Career Connection Logo" />
       </div>

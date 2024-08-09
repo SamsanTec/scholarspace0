@@ -278,15 +278,21 @@ app.post('/apply-job/:jobId', upload.fields([{ name: 'resume' }, { name: 'coverL
 // Route to get all applications for a specific job
 app.get('/applications/job/:jobId', async (req, res) => {
     const { jobId } = req.params;
+    const { userId } = req.query; // Get userId from query parameters
 
-    if (!jobId) {
-        return res.status(400).json({ message: 'Job ID is required.' });
+    if (!jobId || !userId) {
+        return res.status(400).json({ message: 'Job ID and User ID are required.' });
     }
 
     try {
-        const query = 'SELECT * FROM applications WHERE jobId = ?';
+        // Query to ensure that the applications are fetched only for jobs posted by the user
+        const query = `
+            SELECT a.* FROM applications a
+            JOIN jobs j ON a.jobId = j.id
+            WHERE a.jobId = ? AND j.user_id = ?
+        `;
 
-        db.execute(query, [jobId], (err, results) => {
+        db.execute(query, [jobId, userId], (err, results) => {
             if (err) {
                 console.error('Error fetching applications:', err.stack);
                 return res.status(500).json({ message: 'Internal server error while fetching applications.' });
@@ -307,15 +313,22 @@ app.get('/applications/job/:jobId', async (req, res) => {
 // Route to get details of a specific application
 app.get('/applications/:applicationId', async (req, res) => {
     const { applicationId } = req.params;
+    const { userId } = req.query; // Optional: Get userId from query parameters for security
 
     if (!applicationId) {
         return res.status(400).json({ message: 'Application ID is required.' });
     }
 
     try {
-        const query = 'SELECT * FROM applications WHERE id = ?';
+        const query = `
+            SELECT a.* FROM applications a
+            JOIN jobs j ON a.jobId = j.id
+            WHERE a.id = ? ${userId ? 'AND j.user_id = ?' : ''}
+        `;
 
-        db.execute(query, [applicationId], (err, results) => {
+        const params = userId ? [applicationId, userId] : [applicationId];
+
+        db.execute(query, params, (err, results) => {
             if (err) {
                 console.error('Error fetching application details:', err.stack);
                 return res.status(500).json({ message: 'Internal server error while fetching application details.' });
