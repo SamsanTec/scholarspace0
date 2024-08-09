@@ -1,5 +1,11 @@
 .employer-list-container {
   padding: 20px;
+  background-color: #ffffff; /* Removed background image */
+}
+
+.employer-list-container h2 {
+  margin-bottom: 20px;
+  color: #002855; /* Optional: Change color if needed */
 }
 
 .employer-cards {
@@ -9,28 +15,35 @@
 }
 
 .employer-card {
-  background-color: #f8f9fa;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  background-color: #f8f8f8;
   padding: 20px;
-  text-align: center;
-  text-decoration: none;
-  color: #333;
-  flex: 1 1 300px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: calc(33% - 20px); /* Adjust this to control the number of cards per row */
+  box-sizing: border-box;
+  transition: box-shadow 0.3s ease;
 }
 
 .employer-card:hover {
-  transform: scale(1.05);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.employer-card-content h3 {
-  margin: 0 0 10px;
-  font-size: 1.5em;
+.employer-card h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #007bff;
 }
 
-.employer-card-content p {
+.employer-card h3 a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.employer-card h3 a:hover {
+  text-decoration: underline;
+}
+
+.employer-card p {
   margin: 0;
-  color: #555;
+  color: #333;
 }

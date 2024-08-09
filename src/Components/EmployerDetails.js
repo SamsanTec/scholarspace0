@@ -55,6 +55,7 @@ const EmployerDetails = ({ apiUrl }) => {
       <p><strong>Address:</strong> {employer.companyAddress}</p>
       <p><strong>Email:</strong> {employer.email}</p>
       <p><strong>Contact:</strong> {employer.contactInformation}</p>
+      <p><strong>Description:</strong> {employer.companyDescription}</p>
       <h3>Job Listings</h3>
       <div className="job-listings">
         {jobs.length > 0 ? (

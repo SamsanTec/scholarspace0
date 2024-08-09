@@ -1,84 +1,118 @@
-.container {
-    background: rgba(255, 255, 255, 0.9);
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .header {
-    margin-bottom: 20px;
-  }
-  
-  .logo {
-    max-width: 100px;
-  }
-  
-  .main-content h1 {
-    margin-bottom: 30px;
-    font-size: 24px;
-  }
-  
-  .user-types {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-  }
-  
-  .user-type {
-    flex: 1;
-    max-width: 150px;
-  }
-  
-  .user-type a {
-    text-decoration: none;
-    color: #000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    background: #f8f8f8;
-    border-radius: 10px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    transition: background 0.3s, box-shadow 0.3s;
-  }
-  
-  .user-type a:hover {
-    background: #e0e0e0;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  }
-  
-  .icon {
-    width: 50px;
-    height: 50px;
-    margin-bottom: 10px;
-    background-size: cover;
-  }
-  
-  .student-icon {
-    background-image: url('../../public/student-icon.jpg');
-  }
-  
-  .employer-icon {
-    background-image: url('../../public/employer-icon.jpg');
-  }
-  
-  .admin-icon {
-    background-image: url('../../public/admin-icon.png');
-  }
-  
-  .footer {
-    margin-top: 20px;
-    font-size: 14px;
-    color: #555;
-  }
-  
-  .footer a {
-    color: #555;
-    text-decoration: none;
-  }
-  
-  .footer a:hover {
-    text-decoration: underline;
-  }
-  
+/* General styling for the landing page */
+.landing-page {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: url('../../public/joblistings.jpg') no-repeat center center fixed;
+  background-size: cover;
+  background-color: rgba(0, 0, 0, 0.7); /* Darkens the background image */
+  background-blend-mode: darken;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.landing-page .container {
+  position: relative;
+  z-index: 1;
+  padding: 40px;
+  background-color: rgba(255, 255, 255, 0.1); /* More transparent background */
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); /* Stronger shadow to maintain contrast */
+}
+
+.landing-page .header,
+.landing-page .main-content,
+.landing-page .footer {
+  position: relative;
+  z-index: 2;
+}
+
+.landing-page .logo {
+  max-width: 100px;
+  margin-bottom: 20px;
+}
+
+/* Main heading styling */
+.landing-page .main-content h1 {
+  margin-bottom: 30px;
+  font-size: 32px;
+  color: white; /* Change to white */
+  font-weight: bold; /* Make text bold */
+}
+
+/* User type styling */
+.landing-page .user-types {
+  display: flex;
+  justify-content: space-around; /* Ensure equal spacing between items */
+  gap: 20px;
+}
+
+.landing-page .user-type {
+  flex: 1;
+  max-width: 150px;
+}
+
+.landing-page .user-type a {
+  text-decoration: none;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.3); /* Slightly transparent background for user types */
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.landing-page .user-type a:hover {
+  background: rgba(224, 224, 224, 0.3); /* Maintain transparency on hover */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.landing-page .icon {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 10px;
+  background-size: cover;
+}
+
+.landing-page .student-icon {
+  background-image: url('../../public/student-icon.jpg');
+}
+
+.landing-page .employer-icon {
+  background-image: url('../../public/employer-icon.jpg');
+}
+
+.landing-page .admin-icon {
+  background-image: url('../../public/admin-icon.png');
+}
+
+/* User type name styling */
+.landing-page .user-type a span {
+  color: white; /* Change to white */
+  font-weight: bold; /* Make text bold */
+}
+
+/* Footer styling */
+.landing-page .footer {
+  margin-top: 40px; /* Adds some space between the user types and the footer */
+  font-size: 14px;
+  color: white; /* Change to white */
+  font-weight: bold; /* Make text bold */
+}
+
+.landing-page .footer a {
+  color: white; /* Change to white */
+  text-decoration: none;
+}
+
+.landing-page .footer a:hover {
+  text-decoration: underline;
+}

@@ -14,7 +14,7 @@ const NavbarAdmin = () => {
   return (
     <nav className="navbar navbar-admin">
       <div className="navbar-logo">
-        <img src="/path/to/logo.png" alt="Career Connection Logo" />
+        <img src="/logo.png" alt="Career Connection Logo" />
       </div>
       <div className="navbar-links">
         <Link to="/admin/dashboard">Dashboard</Link>

@@ -13,6 +13,7 @@
   }
 }
 
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -27,6 +28,18 @@
 .App-link {
   color: #61dafb;
 }
+
+/* Global styles for all pages */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9; /* Neutral background for all other pages */
+}
+
+/* Additional global styles */
 
 @keyframes App-logo-spin {
   from {

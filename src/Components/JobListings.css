@@ -1,41 +1,26 @@
-.job-filters {
+.job-cards {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 20px; /* Space between job cards */
+    justify-content: space-between; /* Spread out the job cards evenly */
   }
   
-  .job-filters input,
-  .job-filters select {
-    margin-right: 10px;
-    padding: 8px;
-    font-size: 14px;
-    flex-grow: 1;
+  .job-card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: calc(33.333% - 20px); /* Three cards per row with gap accounted for */
+    box-sizing: border-box;
   }
   
-  .search-button {
-    padding: 8px 16px;
-    font-size: 14px;
-    background-color: #007bff; /* You can adjust the color as needed */
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+  .job-card h3 {
+    margin-top: 0;
+    font-size: 1.5rem;
   }
   
-  .search-button:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-  }
-  
-  @media (max-width: 768px) {
-    .job-filters {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-  
-    .search-button {
-      width: 100%;
-      margin-top: 10px;
-    }
+  .job-card p {
+    margin: 0.5rem 0;
+    color: #555;
   }
   
