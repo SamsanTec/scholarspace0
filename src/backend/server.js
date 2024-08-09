@@ -346,7 +346,24 @@ app.get('/applications/:applicationId', async (req, res) => {
     }
 });
 
-
+app.post('/api/interviews', async (req, res) => {
+    const { applicationId, employerId, interviewDate, notes } = req.body;
+  
+    try {
+      const newInterview = await Interview.create({
+        applicationId,
+        employerId,
+        interviewDate,
+        status: 'Scheduled',
+        notes
+      });
+  
+      res.status(201).json(newInterview);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to schedule interview' });
+    }
+  });
+  
 
 // Route to fetch all employers
 app.get('/employers', (req, res) => {
@@ -496,82 +513,6 @@ app.get('/users', (req, res) => {
             return res.status(500).json({ message: 'Error fetching users.' });
         }
         res.json(results);
-    });
-});
-
-// Route for fetching user profile
-app.get('/profile/:userId', (req, res) => {
-    const { userId } = req.params;
-    const query = `
-        SELECT users.id, users.userType, students.fullName, employers.companyName, admins.adminName 
-        FROM users 
-        LEFT JOIN students ON users.id = students.user_id 
-        LEFT JOIN employers ON users.id = employers.user_id 
-        LEFT JOIN admins ON users.id = admins.user_id 
-        WHERE users.id = ?
-    `;
-
-    db.execute(query, [userId], (err, results) => {
-        if (err) {
-            console.error('Error fetching profile data: ' + err.stack);
-            res.status(500).send('Error fetching profile data.');
-            return;
-        }
-        if (results.length > 0) {
-            const { id, userType, fullName, companyName, adminName } = results[0];
-            const name = fullName || companyName || adminName;
-            res.json({ userId: id, userType, name });
-        } else {
-            res.status(404).send('User not found.');
-        }
-    });
-});
-
-// Handling resume upload
-app.put('/profile/:userId', upload.fields([{ name: 'profilePicture' }, { name: 'resume' }]), async (req, res) => {
-    const { userId } = req.params;
-    const { address, phone } = req.body;
-    let profilePictureUrl = null;
-    let resumeUrl = null;
-
-    console.log('Received data:', { userId, address, phone }); // Debugging line
-
-    // Upload profile picture to Azure if provided
-    if (req.files['profilePicture']) {
-        try {
-            const file = req.files['profilePicture'][0];
-            profilePictureUrl = await uploadFileToAzure(file.buffer, file.originalname);
-            console.log('Profile picture uploaded to:', profilePictureUrl);
-        } catch (error) {
-            console.error('Error uploading profile picture:', error);
-            return res.status(500).send('Error uploading profile picture.');
-        }
-    }
-
-    // Upload resume to Azure if provided
-    if (req.files['resume']) {
-        try {
-            const file = req.files['resume'][0];
-            resumeUrl = await uploadFileToAzure(file.buffer, file.originalname);
-            console.log('Resume uploaded to:', resumeUrl);
-        } catch (error) {
-            console.error('Error uploading resume:', error);
-            return res.status(500).send('Error uploading resume.');
-        }
-    }
-
-    const query = `
-        UPDATE users 
-        SET address = ?, phone = ?, profilePicture = ?, resume = ? 
-        WHERE id = ?
-    `;
-
-    db.execute(query, [address, phone, profilePictureUrl, resumeUrl, userId], (err) => {
-        if (err) {
-            console.error('Error updating profile:', err.stack);
-            return res.status(500).send('Error updating profile.');
-        }
-        res.json({ message: 'Profile updated successfully!' });
     });
 });
 

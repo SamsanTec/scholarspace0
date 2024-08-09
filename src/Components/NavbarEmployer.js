@@ -47,7 +47,6 @@ const NavbarEmployer = ({ apiUrl }) => {
       <div className="navbar-links">
         <Link to="/employer/dashboard">Dashboard</Link>
         <Link to="/employer/post-job">Post Job</Link>
-        <Link to="/employer/provide-feedback">Provide Feedback</Link>
       </div>
       <div className="navbar-profile">
         {user.userId ? (

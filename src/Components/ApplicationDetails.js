@@ -1,19 +1,21 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { useParams } from 'react-router-dom';
-import { UserContext } from './UserContext'; // Import UserContext
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { UserContext } from './UserContext';
 import './ApplicationDetails.css';
 
 const ApplicationDetails = ({ apiUrl }) => {
   const { applicationId } = useParams();
-  const { user } = useContext(UserContext); // Access user context
+  const { user } = useContext(UserContext);
   const [application, setApplication] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isRejecting, setIsRejecting] = useState(false);
+  const [rejectSuccess, setRejectSuccess] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchApplicationDetails = async () => {
       try {
-        // Assuming user needs to be authenticated to view application details
         if (!user || !user.userId) {
           throw new Error('User not authenticated');
         }
@@ -34,6 +36,32 @@ const ApplicationDetails = ({ apiUrl }) => {
     fetchApplicationDetails();
   }, [apiUrl, applicationId, user]);
 
+  const handleRejectApplication = async () => {
+    setIsRejecting(true);
+    try {
+      const response = await fetch(`${apiUrl}/applications/${applicationId}/reject`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          employerId: user.userId,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to reject application');
+      }
+      setRejectSuccess('Application rejected successfully!');
+      setTimeout(() => {
+        navigate('/some-appropriate-route'); // Redirect to a different page if needed
+      }, 2000);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setIsRejecting(false);
+    }
+  };
+
   if (loading) {
     return <div>Loading application details...</div>;
   }
@@ -45,7 +73,7 @@ const ApplicationDetails = ({ apiUrl }) => {
   return (
     <div className="application-details-container">
       <h2>Application Details</h2>
-      {application && (
+      {application ? (
         <>
           <p><strong>Name:</strong> {application.firstName} {application.lastName}</p>
           <p><strong>Email:</strong> {application.email}</p>
@@ -59,7 +87,18 @@ const ApplicationDetails = ({ apiUrl }) => {
           {application.coverLetterPath && (
             <p><strong>Cover Letter:</strong> <a href={application.coverLetterPath} download>Download</a></p>
           )}
+          <div className="actions">
+            <Link to={`/applications/${applicationId}/schedule`}>
+              <button>Schedule Interview</button>
+            </Link>
+            <button onClick={handleRejectApplication} disabled={isRejecting}>
+              {isRejecting ? 'Rejecting...' : 'Reject Application'}
+            </button>
+          </div>
+          {rejectSuccess && <p className="success-message">{rejectSuccess}</p>}
         </>
+      ) : (
+        <p>No application details available.</p>
       )}
     </div>
   );
