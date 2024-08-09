@@ -1,19 +1,36 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import { UserContext } from './UserContext'; // Import UserContext
+import { UserContext } from './UserContext';
 import './ApplicationDetails.css';
+import { InlineWidget } from 'react-calendly';
+
+const ScheduleInterview = ({ calendlyUrl, onClose }) => {
+  return (
+    <div className="schedule-interview-modal">
+      <div className="schedule-interview-content">
+        <h3>Schedule an Interview</h3>
+        <p>Choose a convenient time for the interview. The default location for this meeting is <strong>[Your Location]</strong>.</p>
+        <div className="calendly-widget">
+          <InlineWidget url={calendlyUrl} />
+        </div>
+        <button onClick={onClose}>Close</button>
+      </div>
+    </div>
+  );
+};
 
 const ApplicationDetails = ({ apiUrl }) => {
   const { applicationId } = useParams();
-  const { user } = useContext(UserContext); // Access user context
+  const { user } = useContext(UserContext);
   const [application, setApplication] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showScheduleInterview, setShowScheduleInterview] = useState(false);
+  const [rejected, setRejected] = useState(false);
 
   useEffect(() => {
     const fetchApplicationDetails = async () => {
       try {
-        // Assuming user needs to be authenticated to view application details
         if (!user || !user.userId) {
           throw new Error('User not authenticated');
         }
@@ -34,6 +51,50 @@ const ApplicationDetails = ({ apiUrl }) => {
     fetchApplicationDetails();
   }, [apiUrl, applicationId, user]);
 
+  const handleAccept = async () => {
+    try {
+      const response = await fetch(`${apiUrl}/applications/${applicationId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'Accepted' }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update application status');
+      }
+
+      const updatedApplication = { ...application, status: 'Accepted' };
+      setApplication(updatedApplication);
+      setShowScheduleInterview(true);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const handleReject = async () => {
+    try {
+      const response = await fetch(`${apiUrl}/applications/${applicationId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'Rejected' }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update application status');
+      }
+
+      const updatedApplication = { ...application, status: 'Rejected' };
+      setApplication(updatedApplication);
+      setRejected(true);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
   if (loading) {
     return <div>Loading application details...</div>;
   }
@@ -41,6 +102,12 @@ const ApplicationDetails = ({ apiUrl }) => {
   if (error) {
     return <div>Error: {error}</div>;
   }
+
+  if (rejected) {
+    return <div className="rejection-message">Application rejected</div>;
+  }
+
+  const calendlyUrl = `https://calendly.com/bhanguakash27/30min?name=${encodeURIComponent(application.firstName + ' ' + application.lastName)}&email=${encodeURIComponent(application.email)}`;
 
   return (
     <div className="application-details-container">
@@ -58,6 +125,18 @@ const ApplicationDetails = ({ apiUrl }) => {
           )}
           {application.coverLetterPath && (
             <p><strong>Cover Letter:</strong> <a href={application.coverLetterPath} download>Download</a></p>
+          )}
+
+          <div className="action-buttons">
+            <button onClick={handleAccept}>Accept</button>
+            <button onClick={handleReject}>Reject</button>
+          </div>
+          
+          {showScheduleInterview && (
+            <ScheduleInterview 
+              calendlyUrl={calendlyUrl} 
+              onClose={() => setShowScheduleInterview(false)} 
+            />
           )}
         </>
       )}

@@ -370,6 +370,29 @@ app.get('/applications/:applicationId', async (req, res) => {
     }
 });
   
+// Example route for updating application status
+app.patch('/applications/:applicationId/status', (req, res) => {
+    const { applicationId } = req.params;
+    const { status } = req.body;
+  
+    // Ensure the status is one of the allowed values
+    if (!['Pending', 'Accepted', 'Rejected'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status value.' });
+    }
+  
+    const query = 'UPDATE applications SET status = ? WHERE id = ?';
+    db.execute(query, [status, applicationId], (err, results) => {
+      if (err) {
+        return res.status(500).json({ message: 'Error updating application status.' });
+      }
+      if (results.affectedRows === 0) {
+        return res.status(404).json({ message: 'Application not found.' });
+      }
+      res.json({ message: 'Application status updated successfully!' });
+    });
+  });
+  
+
 // Route to fetch all employers
 app.get('/employers', (req, res) => {
     const query = `
@@ -521,6 +544,7 @@ app.get('/users', (req, res) => {
     });
 });
 
+  
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });

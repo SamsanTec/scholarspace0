@@ -1,37 +1,12 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from './UserContext';
 import { getInitials } from '../utils/getInitials';
 import './Navbar.css';
 
-const NavbarEmployer = ({ apiUrl }) => {
+const NavbarEmployer = () => {
   const { user, setUser } = useContext(UserContext);
   const navigate = useNavigate();
-  const [jobs, setJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchJobs = async () => {
-      if (user.userId) {
-        try {
-          const response = await fetch(`${apiUrl}/jobs/employer/${user.userId}`);
-          if (!response.ok) {
-            throw new Error('Failed to fetch jobs');
-          }
-          const data = await response.json();
-          setJobs(data); // Store all jobs
-        } catch (error) {
-          console.error('Failed to fetch jobs:', error);
-          setError(error.message);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchJobs();
-  }, [apiUrl, user.userId]);
 
   const handleLogout = () => {
     // Clear user context and redirect to the landing page
