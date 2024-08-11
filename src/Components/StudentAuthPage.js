@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from './UserContext';
-import CustomErrorMessage from './CustomErrorMessage'; // Import the custom error message component
+import CustomErrorMessage from './CustomErrorMessage';
 import './StudentAuthPage.css';
 
 const StudentAuthPage = ({ apiUrl }) => {
@@ -10,7 +10,9 @@ const StudentAuthPage = ({ apiUrl }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [studentNumber, setStudentNumber] = useState('');
+  const [address, setAddress] = useState('');
+  const [phone, setPhone] = useState('');
+  const [profilePicture, setProfilePicture] = useState(null); // Updated to handle file input
   const [error, setError] = useState('');
   const [showError, setShowError] = useState(false);
   const navigate = useNavigate();
@@ -37,23 +39,13 @@ const StudentAuthPage = ({ apiUrl }) => {
     return errors;
   };
 
-  const validateStudentNumber = (studentNumber) => {
-    const errors = [];
-    if (!/^\d{8}$/.test(studentNumber)) {
-      errors.push('Student number must be an 8-digit number.');
-    }
-    return errors;
-  };
-
   const handleAuth = async (e) => {
     e.preventDefault();
     let errors = [];
   
     if (!isLogin) {
       const passwordErrors = validatePassword(password);
-      const studentNumberErrors = validateStudentNumber(studentNumber);
-  
-      errors = [...passwordErrors, ...studentNumberErrors];
+      errors = [...passwordErrors];
   
       if (errors.length > 0) {
         setError(errors.join('\n'));
@@ -63,18 +55,35 @@ const StudentAuthPage = ({ apiUrl }) => {
     }
   
     const url = isLogin ? `${apiUrl}/login` : `${apiUrl}/signup`;
-    const data = isLogin
-      ? { email, password, userType: 'student' }
-      : { email, password, fullName, studentNumber, userType: 'student' };
+  
+    let response;
   
     try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+      if (isLogin) {
+        response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password, userType: 'student' }), // Send as JSON for login
+        });
+      } else {
+        const formData = new FormData();
+        formData.append('email', email);
+        formData.append('password', password);
+        formData.append('userType', 'student');
+        formData.append('fullName', fullName);
+        formData.append('address', address);
+        formData.append('phone', phone);
+        if (profilePicture) {
+          formData.append('profilePicture', profilePicture); // Append the file
+        }
+  
+        response = await fetch(url, {
+          method: 'POST',
+          body: formData, // Send as FormData for signup
+        });
+      }
   
       if (response.ok) {
         const result = await response.json();
@@ -82,6 +91,10 @@ const StudentAuthPage = ({ apiUrl }) => {
           userId: result.userId,
           userType: 'student',
           name: result.fullName,
+          email: result.email,
+          address: result.address,
+          phone: result.phone,
+          profilePicture: result.profilePictureUrl, // Assuming the URL is returned from the server
         });
         navigate('/student/dashboard');
       } else {
@@ -145,14 +158,34 @@ const StudentAuthPage = ({ apiUrl }) => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="studentNumber">Student Number:</label>
+                <label htmlFor="address">Address:</label>
                 <input
                   type="text"
-                  id="studentNumber"
-                  name="studentNumber"
-                  value={studentNumber}
-                  onChange={(e) => setStudentNumber(e.target.value)}
+                  id="address"
+                  name="address"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
                   required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="phone">Phone:</label>
+                <input
+                  type="text"
+                  id="phone"
+                  name="phone"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="profilePicture">Profile Picture:</label>
+                <input
+                  type="file"
+                  id="profilePicture"
+                  name="profilePicture"
+                  onChange={(e) => setProfilePicture(e.target.files[0])} // Handle file selection
                 />
               </div>
             </>

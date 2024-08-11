@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from './UserContext';
-import CustomErrorMessage from './CustomErrorMessage'; // Import the custom error message component
+import CustomErrorMessage from './CustomErrorMessage';
 import './EmployerAuthPage.css';
 
 const EmployerAuthPage = ({ apiUrl }) => {
@@ -11,6 +11,9 @@ const EmployerAuthPage = ({ apiUrl }) => {
   const [password, setPassword] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [companyAddress, setCompanyAddress] = useState('');
+  const [address, setAddress] = useState('');
+  const [phone, setPhone] = useState('');
+  const [profilePicture, setProfilePicture] = useState(null); // Updated to handle file input
   const [error, setError] = useState('');
   const [showError, setShowError] = useState(false);
   const navigate = useNavigate();
@@ -49,17 +52,25 @@ const EmployerAuthPage = ({ apiUrl }) => {
     }
 
     const url = isLogin ? `${apiUrl}/login` : `${apiUrl}/signup`;
-    const data = isLogin
-      ? { email, password, userType: 'employer' }
-      : { email, password, companyName, companyAddress, userType: 'employer' };
+    const formData = new FormData();
+
+    formData.append('email', email);
+    formData.append('password', password);
+    formData.append('userType', 'employer');
+    if (!isLogin) {
+      formData.append('companyName', companyName);
+      formData.append('companyAddress', companyAddress);
+      formData.append('address', address);
+      formData.append('phone', phone);
+      if (profilePicture) {
+        formData.append('profilePicture', profilePicture); // Append the file
+      }
+    }
 
     try {
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+        body: formData, // Send form data as the body
       });
 
       if (response.ok) {
@@ -68,6 +79,10 @@ const EmployerAuthPage = ({ apiUrl }) => {
           userId: result.userId,
           userType: 'employer',
           name: result.companyName,
+          email: result.email,
+          address: result.address,
+          phone: result.phone,
+          profilePicture: result.profilePictureUrl, // Assuming the URL is returned from the server
         });
         navigate('/employer/dashboard');
       } else {
@@ -140,6 +155,37 @@ const EmployerAuthPage = ({ apiUrl }) => {
                 required
               />
             </div>
+            <div className="form-group">
+              <label htmlFor="address">Address:</label>
+              <input
+                type="text"
+                id="address"
+                name="address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="phone">Phone:</label>
+              <input
+                type="text"
+                id="phone"
+                name="phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="profilePicture">Profile Picture:</label>
+              <input
+                type="file"
+                id="profilePicture"
+                name="profilePicture"
+                onChange={(e) => setProfilePicture(e.target.files[0])} // Handle file selection
+              />
+            </div>
           </>
         )}
         <button type="submit">{isLogin ? 'Login' : 'Sign Up'}</button>
@@ -147,7 +193,14 @@ const EmployerAuthPage = ({ apiUrl }) => {
       <button className="toggle-button" onClick={toggleAuthMode}>
         {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'}
       </button>
-      {showError && <CustomErrorMessage message={error.split('\n').map((msg, idx) => <span key={idx}>{msg}<br/></span>)} onClose={closeError} />}
+      {showError && (
+        <CustomErrorMessage
+          message={error.split('\n').map((msg, idx) => (
+            <span key={idx}>{msg}<br/></span>
+          ))}
+          onClose={closeError}
+        />
+      )}
     </div>
   );
 };

@@ -10,7 +10,7 @@ const Profile = ({ apiUrl }) => {
   const location = useLocation();
 
   const [profile, setProfile] = useState({
-    name: '',
+    fullName: '',
     email: '',
     address: '',
     phone: '',
@@ -61,8 +61,8 @@ const Profile = ({ apiUrl }) => {
     try {
       const formData = new FormData();
       formData.append('userId', user.userId);
-      formData.append('name', profile.name);
-      formData.append('email', profile.email);
+      formData.append('fullName', profile.fullName); // Changed to fullName
+      formData.append('email', profile.email); // Keep email for consistency, though it's read-only
       formData.append('address', profile.address);
       formData.append('phone', profile.phone);
 
@@ -82,8 +82,10 @@ const Profile = ({ apiUrl }) => {
       // Update user context with the new profile data
       const updatedUser = {
         ...user,
-        fullName: profile.name,
-        profilePicture: response.data.profilePicture || profile.profilePicturePreview,
+        fullName: profile.fullName,
+        profilePicture: response.data.profilePicture || profilePicturePreview,
+        address: profile.address,
+        phone: profile.phone,
       };
       setUser(updatedUser);
 
@@ -122,11 +124,11 @@ const Profile = ({ apiUrl }) => {
           )}
         </div>
         <div className="form-group">
-          <label>Name</label>
+          <label>Full Name</label> {/* Changed label to 'Full Name' */}
           <input
             type="text"
-            name="name"
-            value={profile.name}
+            name="fullName" // Changed name to fullName
+            value={profile.fullName}
             onChange={handleInputChange}
             readOnly
           />

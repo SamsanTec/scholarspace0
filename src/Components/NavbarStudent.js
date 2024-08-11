@@ -27,7 +27,6 @@ const NavbarStudent = () => {
         <Link to="/jobs">Jobs</Link>
         <Link to="/employers">Employers</Link>
         <Link to="/courses">Courses</Link>
-        <Link to="/profile">Profile</Link>
       </div>
       <div className="navbar-profile">
         {user && user.userId ? (
@@ -38,9 +37,13 @@ const NavbarStudent = () => {
                   src={user.profilePicture} 
                   alt="Profile" 
                   className="profile-picture"
+                  onClick={() => navigate('/profile')} // Make the profile picture clickable
                 />
               ) : (
-                <div className="profile-initials">
+                <div 
+                  className="profile-initials" 
+                  onClick={() => navigate('/profile')} // Make the initials clickable
+                >
                   {getInitials(user.fullName)}
                 </div>
               )}

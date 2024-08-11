@@ -8,6 +8,8 @@ const { v1: uuidv1 } = require('uuid');
 const { uploadFileToAzure } = require('./azureStorage');
 const app = express();
 const port = process.env.SERVER_PORT || 3000;
+const bcrypt = require('bcrypt');
+const saltRounds = 10; // You can adjust the salt rounds as needed
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -32,77 +34,81 @@ db.connect((err) => {
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+// Signup Route
+app.post('/signup', upload.single('profilePicture'), async (req, res) => {
+    const { email, password, userType, fullName, companyName, companyAddress, address, phone } = req.body;
+    const profilePicture = req.file; // Get the uploaded file from multer
+  
+    try {
+        // Check if the email already exists in the database
+        const checkEmailQuery = 'SELECT * FROM users WHERE email = ?';
+        const [existingUser] = await db.promise().execute(checkEmailQuery, [email]);
+  
+        if (existingUser.length > 0) {
+            return res.status(400).json({ message: 'This email is already registered. Please sign in.' });
+        }
+  
+        let profilePictureUrl = null;
+  
+        if (profilePicture) {
+            // Upload the profile picture to Azure Blob Storage
+            profilePictureUrl = await uploadFileToAzure(profilePicture.buffer, profilePicture.originalname);
+        }
+  
+        // Hash the password before storing it
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+  
+        // Insert user data into the users table
+        const insertUserQuery = `
+            INSERT INTO users (email, password, userType, address, phone, profilePicture) 
+            VALUES (?, ?, ?, ?, ?, ?)
+        `;
+        const [userResult] = await db.promise().execute(insertUserQuery, [email, hashedPassword, userType, address, phone, profilePictureUrl]);
+        const userId = userResult.insertId;
+  
+        if (userType === 'student') {
+            const insertStudentQuery = 'INSERT INTO students (user_id, fullName) VALUES (?, ?)';
+            await db.promise().execute(insertStudentQuery, [userId, fullName]);
+            res.json({ userId, userType, fullName });
+        } else if (userType === 'employer') {
+            const insertEmployerQuery = 'INSERT INTO employers (user_id, companyName, companyAddress) VALUES (?, ?, ?)';
+            await db.promise().execute(insertEmployerQuery, [userId, companyName, companyAddress]);
+            res.json({ userId, userType, companyName });
+        } else {
+            res.status(400).json({ message: 'Invalid user type.' });
+        }
+    } catch (error) {
+        console.error('Error during signup:', error.stack);
+        res.status(500).json({ message: 'Error during signup.' });
+    }
+});
+
+// Login Route
 app.post('/login', (req, res) => {
     const { email, password, userType } = req.body;
-    const query = 'SELECT users.id, userType, fullName, companyName, adminName FROM users LEFT JOIN students ON users.id = students.user_id LEFT JOIN employers ON users.id = employers.user_id LEFT JOIN admins ON users.id = admins.user_id WHERE email = ? AND password = ? AND userType = ?';
-
-    db.execute(query, [email, password, userType], (err, results) => {
+    const query = 'SELECT users.id, userType, fullName, companyName, adminName, password FROM users LEFT JOIN students ON users.id = students.user_id LEFT JOIN employers ON users.id = employers.user_id LEFT JOIN admins ON users.id = admins.user_id WHERE email = ? AND userType = ?';
+  
+    db.execute(query, [email, userType], async (err, results) => {
         if (err) {
             console.error('Error fetching data: ' + err.stack);
             res.status(500).send('Error logging in.');
             return;
         }
         if (results.length > 0) {
-            const { id, userType, fullName, companyName, adminName } = results[0];
+            const { id, userType, fullName, companyName, adminName, password: hashedPassword } = results[0];
             const name = fullName || companyName || adminName;
-            res.json({ userId: id, userType, name });
+  
+            // Compare the provided password with the hashed password in the database
+            const match = await bcrypt.compare(password, hashedPassword);
+  
+            if (match) {
+                res.json({ userId: id, userType, name });
+            } else {
+                res.status(401).send('Invalid credentials.');
+            }
         } else {
             res.status(401).send('Invalid credentials or user type.');
         }
-    });
-});
-
-app.post('/signup', (req, res) => {
-    const { email, password, userType, fullName, studentNumber, companyName, companyAddress } = req.body;
-
-    // First, check if the email already exists in the database
-    const checkEmailQuery = 'SELECT * FROM users WHERE email = ?';
-
-    db.execute(checkEmailQuery, [email], (err, results) => {
-        if (err) {
-            console.error('Error checking email:', err.stack);
-            return res.status(500).json({ message: 'Error checking email.' });
-        }
-
-        if (results.length > 0) {
-            // Email already exists
-            return res.status(400).json({ message: 'This email is already registered. Please sign in.' });
-        }
-
-        // If the email does not exist, proceed with sign-up
-        const insertUserQuery = 'INSERT INTO users (email, password, userType) VALUES (?, ?, ?)';
-
-        db.execute(insertUserQuery, [email, password, userType], (err, results) => {
-            if (err) {
-                console.error('Error inserting user data:', err.stack);
-                return res.status(500).json({ message: 'Error signing up.' });
-            }
-
-            const userId = results.insertId;
-
-            if (userType === 'student') {
-                const insertStudentQuery = 'INSERT INTO students (user_id, fullName, studentNumber) VALUES (?, ?, ?)';
-                db.execute(insertStudentQuery, [userId, fullName, studentNumber], (err) => {
-                    if (err) {
-                        console.error('Error inserting student data:', err.stack);
-                        return res.status(500).json({ message: 'Error signing up.' });
-                    }
-                    res.json({ userId, userType, fullName });
-                });
-            } else if (userType === 'employer') {
-                const insertEmployerQuery = 'INSERT INTO employers (user_id, companyName, companyAddress) VALUES (?, ?, ?)';
-                db.execute(insertEmployerQuery, [userId, companyName, companyAddress], (err) => {
-                    if (err) {
-                        console.error('Error inserting employer data:', err.stack);
-                        return res.status(500).json({ message: 'Error signing up.' });
-                    }
-                    res.json({ userId, userType, companyName });
-                });
-            } else {
-                // Handle other user types if necessary
-                res.status(400).json({ message: 'Invalid user type.' });
-            }
-        });
     });
 });
 
@@ -533,6 +539,76 @@ app.get('/admin/active-courses', (req, res) => {
     });
 });
 
+app.get('/profile/:userId', (req, res) => {
+    const userId = req.params.userId;
+  
+    const query = `
+      SELECT u.id as userId, u.email, u.fullName as name, u.address, u.phone, u.profilePicture, s.resume
+      FROM users u
+      LEFT JOIN students s ON u.id = s.user_id
+      WHERE u.id = ?
+    `;
+  
+    db.execute(query, [userId], (err, results) => {
+      if (err) {
+        console.error('Error fetching profile data:', err.stack);
+        return res.status(500).json({ message: 'Error fetching profile data.' });
+      }
+  
+      if (results.length === 0) {
+        return res.status(404).json({ message: 'User not found.' });
+      }
+  
+      res.json(results[0]);
+    });
+  });
+  
+  app.put('/profile/:userId', upload.fields([{ name: 'profilePicture' }, { name: 'resume' }]), async (req, res) => {
+    const userId = req.params.userId;
+    const { name, email, address, phone } = req.body;
+    let profilePictureUrl = null;
+    let resumeUrl = null;
+  
+    try {
+      // Check if profile picture file exists in the request
+      if (req.files.profilePicture) {
+        const profilePictureFile = req.files.profilePicture[0];
+        profilePictureUrl = await uploadFileToAzure(profilePictureFile.buffer, profilePictureFile.originalname);
+      }
+  
+      // Check if resume file exists in the request
+      if (req.files.resume) {
+        const resumeFile = req.files.resume[0];
+        resumeUrl = await uploadFileToAzure(resumeFile.buffer, resumeFile.originalname);
+      }
+  
+      // Update the users table
+      const updateUserQuery = `
+        UPDATE users SET fullName = ?, address = ?, phone = ?, profilePicture = ?
+        WHERE id = ?
+      `;
+      const userValues = [name, address, phone, profilePictureUrl || req.body.existingProfilePicture, userId];
+      await db.promise().execute(updateUserQuery, userValues);
+  
+      // Update the students table (if applicable)
+      if (resumeUrl) {
+        const updateResumeQuery = `
+          UPDATE students SET resume = ?
+          WHERE user_id = ?
+        `;
+        await db.promise().execute(updateResumeQuery, [resumeUrl, userId]);
+      }
+  
+      res.json({
+        message: 'Profile updated successfully',
+        profilePicture: profilePictureUrl,
+        resume: resumeUrl,
+      });
+    } catch (error) {
+      console.error('Error updating profile data:', error.stack);
+      res.status(500).json({ message: 'Error updating profile data.' });
+    }
+  });
   
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

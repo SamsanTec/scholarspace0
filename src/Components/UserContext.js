@@ -10,8 +10,7 @@ export const UserProvider = ({ children }) => {
       userId: null,
       userType: null,
       fullName: '',
-      initials: '',
-      profilePicture: null, // Add profilePicture to the default state
+      profilePicture: null, // Default to null if no picture is set
     };
   });
 
@@ -20,8 +19,15 @@ export const UserProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(user));
   }, [user]);
 
+  const updateUser = (newUserData) => {
+    setUser({
+      ...user,
+      ...newUserData,
+    });
+  };
+
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ user, setUser: updateUser }}>
       {children}
     </UserContext.Provider>
   );
