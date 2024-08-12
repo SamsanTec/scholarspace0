@@ -1,20 +1,40 @@
-import React, { useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from './UserContext';
-import { getInitials } from '../utils/getInitials';
 import './Navbar.css';
 
-const NavbarStudent = () => {
-  const { user, setUser } = useContext(UserContext);
+const NavbarStudent = ({ apiUrl }) => {
+  const { user } = useContext(UserContext);
   const navigate = useNavigate();
+  const [profilePictureUrl, setProfilePictureUrl] = useState('/path/to/default-profile-pic.png'); // Default profile picture
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user && user.userId) {
+        try {
+          const response = await fetch(`${apiUrl}/profile/${user.userId}`);
+          if (response.ok) {
+            const data = await response.json();
+            setProfilePictureUrl(data.profilePicture || '/path/to/default-profile-pic.png');
+          } else {
+            console.error('Failed to fetch profile data:', await response.text());
+          }
+        } catch (error) {
+          console.error('Error fetching profile data:', error);
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, [user, apiUrl]);
 
   const handleLogout = () => {
-    // Clear user context
-    setUser({ userId: null, userType: null, fullName: '', initials: '', profilePicture: null });
-    // Clear localStorage
     localStorage.removeItem('user');
-    // Redirect to the landing page
     navigate('/');
+  };
+
+  const handleProfileClick = () => {
+    navigate(`/student/profile/${user.userId}`);
   };
 
   return (
@@ -31,23 +51,16 @@ const NavbarStudent = () => {
       <div className="navbar-profile">
         {user && user.userId ? (
           <>
-            <Link to="/profile" className="profile-link">
-              {user.profilePicture ? (
-                <img 
-                  src={user.profilePicture} 
-                  alt="Profile" 
-                  className="profile-picture"
-                  onClick={() => navigate('/profile')} // Make the profile picture clickable
-                />
-              ) : (
-                <div 
-                  className="profile-initials" 
-                  onClick={() => navigate('/profile')} // Make the initials clickable
-                >
-                  {getInitials(user.fullName)}
-                </div>
-              )}
-            </Link>
+            <div className="profile-link" onClick={handleProfileClick}>
+              <img 
+                src={profilePictureUrl} 
+                alt="Profile" 
+                className="profile-picture"
+              />
+              <div className="profile-name">
+                {user.name} {/* Display the user's name */}
+              </div>
+            </div>
             <button className="logout-button" onClick={handleLogout}>Logout</button>
           </>
         ) : (

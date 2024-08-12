@@ -86,3 +86,10 @@
     margin-right: 5px;
   }
   
+  /* Navbar.css */
+.navbar-profile .profile-picture {
+  width: 40px; /* Adjust the size */
+  height: 40px; /* Adjust the size */
+  border-radius: 50%; /* Make it a circle */
+  object-fit: cover; /* Ensure the picture covers the entire space */
+}

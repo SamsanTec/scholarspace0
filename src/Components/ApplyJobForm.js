@@ -92,7 +92,7 @@ const ApplyJobForm = ({ apiUrl }) => {
 
       setSubmissionSuccess(true);
       setTimeout(() => {
-        navigate('/student/dashboard');
+        navigate('/student/dashboard/:userID');
       }, 3000);
     } catch (error) {
       console.error('Error during form submission:', error);

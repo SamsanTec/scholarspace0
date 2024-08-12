@@ -11,7 +11,7 @@ const PostJob = ({ apiUrl }) => {
   const [numPeople, setNumPeople] = useState('');
   const [jobLocation, setJobLocation] = useState('');
   const [streetAddress, setStreetAddress] = useState('');
-  const [companyDescription, setCompanyDescription] = useState('');
+  const [jobDescription, setJobDescription] = useState('');
   const [competitionId, setCompetitionId] = useState('');
   const [internalClosingDate, setInternalClosingDate] = useState('');
   const [externalClosingDate, setExternalClosingDate] = useState('');
@@ -39,7 +39,7 @@ const PostJob = ({ apiUrl }) => {
       numPeople,
       jobLocation,
       streetAddress,
-      companyDescription,
+      jobDescription,
       userId: user?.userId || null,
       competitionId,
       internalClosingDate,
@@ -52,7 +52,6 @@ const PostJob = ({ apiUrl }) => {
       contactInformation,
     };
 
-    // Custom validation example: ensure internal date is before external date
     if (internalClosingDate && externalClosingDate && new Date(internalClosingDate) > new Date(externalClosingDate)) {
       alert('Internal closing date should be before external closing date.');
       setIsSubmitting(false);
@@ -71,7 +70,7 @@ const PostJob = ({ apiUrl }) => {
       if (response.ok) {
         const message = await response.json();
         console.log(message);
-        navigate('/employer/dashboard');
+        navigate('/employer/dashboard/:userID');
       } else {
         const errorMessage = await response.text();
         console.error('Error:', errorMessage);
@@ -142,13 +141,13 @@ const PostJob = ({ apiUrl }) => {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="companyDescription">Company description</label>
+          <label htmlFor="jobDescription">Job Description</label>
           <textarea 
-            id="companyDescription" 
-            name="companyDescription" 
+            id="jobDescription" 
+            name="jobDescription" 
             rows="4" 
-            value={companyDescription}
-            onChange={handleInputChange(setCompanyDescription)}
+            value={jobDescription}
+            onChange={handleInputChange(setJobDescription)}
           />
         </div>
         <div className="form-group">

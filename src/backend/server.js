@@ -8,8 +8,6 @@ const { v1: uuidv1 } = require('uuid');
 const { uploadFileToAzure } = require('./azureStorage');
 const app = express();
 const port = process.env.SERVER_PORT || 3000;
-const bcrypt = require('bcrypt');
-const saltRounds = 10; // You can adjust the salt rounds as needed
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -36,94 +34,232 @@ const upload = multer({ storage });
 
 // Signup Route
 app.post('/signup', upload.single('profilePicture'), async (req, res) => {
-    const { email, password, userType, fullName, companyName, companyAddress, address, phone } = req.body;
+    const { email, password, userType, fullName, companyName, address, phone } = req.body;
     const profilePicture = req.file; // Get the uploaded file from multer
-  
+
     try {
         // Check if the email already exists in the database
         const checkEmailQuery = 'SELECT * FROM users WHERE email = ?';
         const [existingUser] = await db.promise().execute(checkEmailQuery, [email]);
-  
+
         if (existingUser.length > 0) {
             return res.status(400).json({ message: 'This email is already registered. Please sign in.' });
         }
-  
+
         let profilePictureUrl = null;
-  
+
         if (profilePicture) {
             // Upload the profile picture to Azure Blob Storage
             profilePictureUrl = await uploadFileToAzure(profilePicture.buffer, profilePicture.originalname);
         }
-  
-        // Hash the password before storing it
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
-  
-        // Insert user data into the users table
+
+        // Insert user data into the users table with plain text password
         const insertUserQuery = `
             INSERT INTO users (email, password, userType, address, phone, profilePicture) 
             VALUES (?, ?, ?, ?, ?, ?)
         `;
-        const [userResult] = await db.promise().execute(insertUserQuery, [email, hashedPassword, userType, address, phone, profilePictureUrl]);
+        const [userResult] = await db.promise().execute(insertUserQuery, [email, password, userType, address, phone, profilePictureUrl]);
         const userId = userResult.insertId;
-  
+
+        let responseData = { userId, userType, profilePictureUrl };
+
         if (userType === 'student') {
             const insertStudentQuery = 'INSERT INTO students (user_id, fullName) VALUES (?, ?)';
             await db.promise().execute(insertStudentQuery, [userId, fullName]);
-            res.json({ userId, userType, fullName });
+            responseData.fullName = fullName;
         } else if (userType === 'employer') {
-            const insertEmployerQuery = 'INSERT INTO employers (user_id, companyName, companyAddress) VALUES (?, ?, ?)';
-            await db.promise().execute(insertEmployerQuery, [userId, companyName, companyAddress]);
-            res.json({ userId, userType, companyName });
+            const insertEmployerQuery = 'INSERT INTO employers (user_id, companyName) VALUES (?, ?)';
+            await db.promise().execute(insertEmployerQuery, [userId, companyName]);
+            responseData.companyName = companyName;
+        } else if (userType === 'admin') {
+            const insertAdminQuery = 'INSERT INTO admins (user_id, adminName) VALUES (?, ?)';
+            await db.promise().execute(insertAdminQuery, [userId, fullName]);
+            responseData.adminName = fullName;
         } else {
-            res.status(400).json({ message: 'Invalid user type.' });
+            return res.status(400).json({ message: 'Invalid user type.' });
         }
+
+        res.json(responseData);
     } catch (error) {
         console.error('Error during signup:', error.stack);
         res.status(500).json({ message: 'Error during signup.' });
     }
 });
 
+
 // Login Route
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
     const { email, password, userType } = req.body;
-    const query = 'SELECT users.id, userType, fullName, companyName, adminName, password FROM users LEFT JOIN students ON users.id = students.user_id LEFT JOIN employers ON users.id = employers.user_id LEFT JOIN admins ON users.id = admins.user_id WHERE email = ? AND userType = ?';
-  
-    db.execute(query, [email, userType], async (err, results) => {
-        if (err) {
-            console.error('Error fetching data: ' + err.stack);
-            res.status(500).send('Error logging in.');
-            return;
-        }
+
+    try {
+        // Query to get user data based on email, password, and userType
+        const query = `
+            SELECT users.id, users.userType, students.fullName, employers.companyName, admins.adminName 
+            FROM users 
+            LEFT JOIN students ON users.id = students.user_id 
+            LEFT JOIN employers ON users.id = employers.user_id 
+            LEFT JOIN admins ON users.id = admins.user_id 
+            WHERE email = ? AND password = ? AND userType = ?
+        `;
+
+        const [results] = await db.promise().execute(query, [email, password, userType]);
+
         if (results.length > 0) {
-            const { id, userType, fullName, companyName, adminName, password: hashedPassword } = results[0];
+            const { id, userType, fullName, companyName, adminName } = results[0];
             const name = fullName || companyName || adminName;
-  
-            // Compare the provided password with the hashed password in the database
-            const match = await bcrypt.compare(password, hashedPassword);
-  
-            if (match) {
-                res.json({ userId: id, userType, name });
-            } else {
-                res.status(401).send('Invalid credentials.');
-            }
+            res.json({ userId: id, userType, name });
         } else {
             res.status(401).send('Invalid credentials or user type.');
         }
-    });
+    } catch (error) {
+        console.error('Error logging in:', error.stack);
+        res.status(500).json({ message: 'Error logging in.' });
+    }
 });
 
 
-
-// Route to post a new job
-app.post('/post-job', (req, res) => {
-    const { jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, jobCategory, companyName, contactInformation, userId } = req.body;
+// Fetch user profile by ID
+app.get('/profile/:userId', (req, res) => {
+    const userId = req.params.userId;
 
     const query = `
-        INSERT INTO jobs (jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, jobCategory, companyName, contactInformation, user_id) 
+        SELECT u.id as userId, u.email, u.userType, u.address, u.phone, u.profilePicture, 
+            COALESCE(s.fullName, e.companyName, a.adminName) as name
+        FROM users u
+        LEFT JOIN students s ON u.id = s.user_id
+        LEFT JOIN employers e ON u.id = e.user_id
+        LEFT JOIN admins a ON u.id = a.user_id
+        WHERE u.id = ?
+    `;
+
+    db.execute(query, [userId], (err, results) => {
+        if (err) {
+            console.error('Error fetching profile data:', err.stack);
+            return res.status(500).json({ message: 'Error fetching profile data.' });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        res.json(results[0]);
+    });
+});
+
+// Update user profile
+app.put('/profile/:userId', async (req, res) => {
+    const userId = req.params.userId;
+    const { name, address, phone, userType } = req.body;
+
+    try {
+        // Update the users table
+        const updateUserQuery = `
+            UPDATE users SET address = ?, phone = ?
+            WHERE id = ?
+        `;
+        const userValues = [address, phone, userId];
+        await db.promise().execute(updateUserQuery, userValues);
+
+        // Update the relevant profile table based on user type
+        let updateProfileQuery;
+        let profileValues;
+
+        if (userType === 'student') {
+            updateProfileQuery = `
+                UPDATE students SET fullName = ?
+                WHERE user_id = ?
+            `;
+            profileValues = [name, userId];
+        } else if (userType === 'employer') {
+            updateProfileQuery = `
+                UPDATE employers SET companyName = ?
+                WHERE user_id = ?
+            `;
+            profileValues = [name, userId];
+        } else if (userType === 'admin') {
+            updateProfileQuery = `
+                UPDATE admins SET adminName = ?
+                WHERE user_id = ?
+            `;
+            profileValues = [name, userId];
+        }
+
+        await db.promise().execute(updateProfileQuery, profileValues);
+
+        res.json({
+            message: 'Profile updated successfully',
+        });
+    } catch (error) {
+        console.error('Error updating profile data:', error.stack);
+        res.status(500).json({ message: 'Error updating profile data.' });
+    }
+});
+
+
+app.post('/post-job', (req, res) => {
+    const { 
+        jobTitle, 
+        numPeople, 
+        jobLocation, 
+        streetAddress, 
+        jobDescription, 
+        competitionId = null, // Optional
+        internalClosingDate = null, // Optional
+        externalClosingDate = null, // Optional
+        payLevel, 
+        employmentType, 
+        travelFrequency, 
+        jobCategory, 
+        companyName, 
+        contactInformation, 
+        userId 
+    } = req.body;
+
+    // Validate the required fields
+    if (!jobTitle || !numPeople || !jobLocation || !streetAddress || !jobDescription || 
+        !payLevel || !employmentType || !travelFrequency || !jobCategory || 
+        !companyName || !contactInformation || !userId) {
+        return res.status(400).json({ message: 'All fields are required.' });
+    }
+
+    const query = `
+        INSERT INTO jobs (
+            jobTitle, 
+            numPeople, 
+            jobLocation, 
+            streetAddress, 
+            jobDescription, 
+            competitionId, 
+            internalClosingDate, 
+            externalClosingDate, 
+            payLevel, 
+            employmentType, 
+            travelFrequency, 
+            jobCategory, 
+            companyName, 
+            contactInformation, 
+            user_id
+        ) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    db.execute(query, [jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, jobCategory, companyName, contactInformation, userId], (err, results) => {
+    db.execute(query, [
+        jobTitle, 
+        numPeople, 
+        jobLocation, 
+        streetAddress, 
+        jobDescription, 
+        competitionId, 
+        internalClosingDate, 
+        externalClosingDate, 
+        payLevel, 
+        employmentType, 
+        travelFrequency, 
+        jobCategory, 
+        companyName, 
+        contactInformation, 
+        userId
+    ], (err, results) => {
         if (err) {
             console.error('Error inserting job data:', err.stack);
             return res.status(500).json({ message: 'Error posting job.' });
@@ -141,18 +277,19 @@ app.post('/post-job', (req, res) => {
     });
 });
 
+
 // Route to update a job by ID
 app.put('/jobs/:jobId', (req, res) => {
     const { jobId } = req.params;
-    const { jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, jobCategory, companyName, contactInformation } = req.body;
+    const { jobTitle, numPeople, jobLocation, streetAddress, jobDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, jobCategory, companyName, contactInformation } = req.body;
 
     const query = `
         UPDATE jobs 
-        SET jobTitle = ?, numPeople = ?, jobLocation = ?, streetAddress = ?, companyDescription = ?, competitionId = ?, internalClosingDate = ?, externalClosingDate = ?, payLevel = ?, employmentType = ?, travelFrequency = ?, jobCategory = ?, companyName = ?, contactInformation = ? 
+        SET jobTitle = ?, numPeople = ?, jobLocation = ?, streetAddress = ?, jobDescription = ?, competitionId = ?, internalClosingDate = ?, externalClosingDate = ?, payLevel = ?, employmentType = ?, travelFrequency = ?, jobCategory = ?, companyName = ?, contactInformation = ? 
         WHERE id = ?
     `;
 
-    db.execute(query, [jobTitle, numPeople, jobLocation, streetAddress, companyDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, jobCategory, companyName, contactInformation, jobId], (err) => {
+    db.execute(query, [jobTitle, numPeople, jobLocation, streetAddress, jobDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, jobCategory, companyName, contactInformation, jobId], (err) => {
         if (err) {
             console.error('Error updating job:', err.stack);
             return res.status(500).json({ message: 'Error updating job.' });
@@ -161,28 +298,19 @@ app.put('/jobs/:jobId', (req, res) => {
     });
 });
 
-app.post('/admin/courses', (req, res) => {
-    const { title, description, category } = req.body;
-    
-    const query = 'INSERT INTO courses (title, description, category) VALUES (?, ?, ?)';
-    db.execute(query, [title, description, category], (err, results) => {
-        if (err) {
-            console.error('Error inserting course:', err.stack);
-            return res.status(500).json({ message: 'Error adding course.' });
-        }
-        res.status(201).json({ message: 'Course added successfully!', courseId: results.insertId });
-    });
-});
 
-// Fetch Courses Endpoint (Optional for Testing)
-app.get('/courses', (req, res) => {
-    const query = 'SELECT * FROM courses';
-    db.execute(query, (err, results) => {
+// Route to delete a specific job by ID
+app.delete('/jobs/:jobId', (req, res) => {
+    const { jobId } = req.params;
+
+    const query = 'DELETE FROM jobs WHERE id = ?';
+
+    db.execute(query, [jobId], (err) => {
         if (err) {
-            console.error('Error fetching courses:', err.stack);
-            return res.status(500).json({ message: 'Error fetching courses.' });
+            console.error('Error deleting job:', err.stack);
+            return res.status(500).json({ message: 'Error deleting job.' });
         }
-        res.json(results);
+        res.json({ message: 'Job deleted successfully!' });
     });
 });
 
@@ -226,21 +354,6 @@ app.get('/jobs/:jobId', (req, res) => {
         } else {
             res.status(404).json({ message: 'Job not found.' });
         }
-    });
-});
-
-// Route to delete a specific job by ID
-app.delete('/jobs/:jobId', (req, res) => {
-    const { jobId } = req.params;
-
-    const query = 'DELETE FROM jobs WHERE id = ?';
-
-    db.execute(query, [jobId], (err) => {
-        if (err) {
-            console.error('Error deleting job:', err.stack);
-            return res.status(500).json({ message: 'Error deleting job.' });
-        }
-        res.json({ message: 'Job deleted successfully!' });
     });
 });
 
@@ -473,37 +586,28 @@ app.get('/employers/:employerId', (req, res) => {
     });
 });
 
-// Route to fetch jobs posted by a specific employer
-app.get('/employers/:employerId/jobs', (req, res) => {
-    const { employerId } = req.params;
-    const query = 'SELECT * FROM jobs WHERE user_id = ?';
-
-    db.execute(query, [employerId], (err, results) => {
+app.post('/admin/courses', (req, res) => {
+    const { title, description, category } = req.body;
+    
+    const query = 'INSERT INTO courses (title, description, category) VALUES (?, ?, ?)';
+    db.execute(query, [title, description, category], (err, results) => {
         if (err) {
-            console.error('Error fetching jobs:', err.stack);
-            return res.status(500).json({ message: 'Error fetching jobs.' });
+            console.error('Error inserting course:', err.stack);
+            return res.status(500).json({ message: 'Error adding course.' });
         }
-        res.json(results);
+        res.status(201).json({ message: 'Course added successfully!', courseId: results.insertId });
     });
 });
 
-app.get('/profile/:userId', (req, res) => {
-    const { userId } = req.params;
-    const query = 'SELECT users.id, users.userType, students.fullName, employers.companyName, admins.adminName FROM users LEFT JOIN students ON users.id = students.user_id LEFT JOIN employers ON users.id = employers.user_id LEFT JOIN admins ON users.id = admins.user_id WHERE users.id = ?';
-
-    db.execute(query, [userId], (err, results) => {
+// Fetch Courses Endpoint (Optional for Testing)
+app.get('/courses', (req, res) => {
+    const query = 'SELECT * FROM courses';
+    db.execute(query, (err, results) => {
         if (err) {
-            console.error('Error fetching profile data: ' + err.stack);
-            res.status(500).send('Error fetching profile data.');
-            return;
+            console.error('Error fetching courses:', err.stack);
+            return res.status(500).json({ message: 'Error fetching courses.' });
         }
-        if (results.length > 0) {
-            const { id, userType, fullName, companyName, adminName } = results[0];
-            const name = fullName || companyName || adminName;
-            res.json({ userId: id, userType, name });
-        } else {
-            res.status(404).send('User not found.');
-        }
+        res.json(results);
     });
 });
 
@@ -539,77 +643,6 @@ app.get('/admin/active-courses', (req, res) => {
     });
 });
 
-app.get('/profile/:userId', (req, res) => {
-    const userId = req.params.userId;
-  
-    const query = `
-      SELECT u.id as userId, u.email, u.fullName as name, u.address, u.phone, u.profilePicture, s.resume
-      FROM users u
-      LEFT JOIN students s ON u.id = s.user_id
-      WHERE u.id = ?
-    `;
-  
-    db.execute(query, [userId], (err, results) => {
-      if (err) {
-        console.error('Error fetching profile data:', err.stack);
-        return res.status(500).json({ message: 'Error fetching profile data.' });
-      }
-  
-      if (results.length === 0) {
-        return res.status(404).json({ message: 'User not found.' });
-      }
-  
-      res.json(results[0]);
-    });
-  });
-  
-  app.put('/profile/:userId', upload.fields([{ name: 'profilePicture' }, { name: 'resume' }]), async (req, res) => {
-    const userId = req.params.userId;
-    const { name, email, address, phone } = req.body;
-    let profilePictureUrl = null;
-    let resumeUrl = null;
-  
-    try {
-      // Check if profile picture file exists in the request
-      if (req.files.profilePicture) {
-        const profilePictureFile = req.files.profilePicture[0];
-        profilePictureUrl = await uploadFileToAzure(profilePictureFile.buffer, profilePictureFile.originalname);
-      }
-  
-      // Check if resume file exists in the request
-      if (req.files.resume) {
-        const resumeFile = req.files.resume[0];
-        resumeUrl = await uploadFileToAzure(resumeFile.buffer, resumeFile.originalname);
-      }
-  
-      // Update the users table
-      const updateUserQuery = `
-        UPDATE users SET fullName = ?, address = ?, phone = ?, profilePicture = ?
-        WHERE id = ?
-      `;
-      const userValues = [name, address, phone, profilePictureUrl || req.body.existingProfilePicture, userId];
-      await db.promise().execute(updateUserQuery, userValues);
-  
-      // Update the students table (if applicable)
-      if (resumeUrl) {
-        const updateResumeQuery = `
-          UPDATE students SET resume = ?
-          WHERE user_id = ?
-        `;
-        await db.promise().execute(updateResumeQuery, [resumeUrl, userId]);
-      }
-  
-      res.json({
-        message: 'Profile updated successfully',
-        profilePicture: profilePictureUrl,
-        resume: resumeUrl,
-      });
-    } catch (error) {
-      console.error('Error updating profile data:', error.stack);
-      res.status(500).json({ message: 'Error updating profile data.' });
-    }
-  });
-  
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });

@@ -32,9 +32,6 @@ const StudentAuthPage = ({ apiUrl }) => {
     if (!/\d/.test(password)) {
       errors.push('Password must contain at least one number.');
     }
-    if (!/[!@#$%^&*]/.test(password)) {
-      errors.push('Password must contain at least one special character (!@#$%^&*).');
-    }
 
     return errors;
   };
@@ -96,7 +93,8 @@ const StudentAuthPage = ({ apiUrl }) => {
           phone: result.phone,
           profilePicture: result.profilePictureUrl, // Assuming the URL is returned from the server
         });
-        navigate('/student/dashboard');
+        // Navigate to the student dashboard with the userId
+        navigate(`/student/dashboard/${result.userId}`);
       } else {
         const errorData = await response.json();
         setError(errorData.message || 'An error occurred during sign up.');

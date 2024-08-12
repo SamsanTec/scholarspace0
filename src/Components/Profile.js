@@ -1,134 +1,107 @@
 import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { UserContext } from './UserContext';
 import './Profile.css';
 
 const Profile = ({ apiUrl }) => {
-  const { user, setUser } = useContext(UserContext);
+  const { userId } = useParams();
+  const { user } = useContext(UserContext);
   const navigate = useNavigate();
-  const location = useLocation();
-
   const [profile, setProfile] = useState({
-    fullName: '',
+    name: '', // Ensure this matches the backend field
     email: '',
     address: '',
     phone: '',
-    resume: null,
     profilePicture: null,
+    userType: '',
   });
 
   const [profilePicturePreview, setProfilePicturePreview] = useState(null);
 
   useEffect(() => {
-    if (user && user.userId) {
-      axios.get(`${apiUrl}/profile/${user.userId}`)
-        .then(response => {
-          setProfile(response.data);
-          setProfilePicturePreview(response.data.profilePicture || null);
+    const currentUserId = userId || (user && user.userId);
+    if (currentUserId) {
+      fetch(`${apiUrl}/profile/${currentUserId}`)
+        .then(response => response.json())
+        .then(data => {
+          setProfile(data);
+          setProfilePicturePreview(data.profilePicture || '/path/to/default-profile-pic.png');
         })
         .catch(error => {
           console.error('Error fetching profile data:', error);
         });
     }
-  }, [user, apiUrl]);
+  }, [userId, user, apiUrl]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setProfile({ ...profile, [name]: value });
   };
 
-  const handleFileChange = (e) => {
-    const { name, files } = e.target;
-    setProfile({ ...profile, [name]: files[0] });
-  };
-
-  const handleProfilePictureChange = (e) => {
-    const file = e.target.files[0];
-    setProfile({ ...profile, profilePicture: file });
-    setProfilePicturePreview(URL.createObjectURL(file));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!user || !user.userId) {
-      console.error("User ID is not defined.");
-      alert("User is not logged in or user ID is missing.");
-      return;
-    }
-
     try {
-      const formData = new FormData();
-      formData.append('userId', user.userId);
-      formData.append('fullName', profile.fullName); // Changed to fullName
-      formData.append('email', profile.email); // Keep email for consistency, though it's read-only
-      formData.append('address', profile.address);
-      formData.append('phone', profile.phone);
-
-      if (profile.profilePicture) {
-        formData.append('profilePicture', profile.profilePicture);
-      }
-      if (profile.resume) {
-        formData.append('resume', profile.resume);
-      }
-
-      const response = await axios.put(`${apiUrl}/profile/${user.userId}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      // Update user context with the new profile data
-      const updatedUser = {
-        ...user,
-        fullName: profile.fullName,
-        profilePicture: response.data.profilePicture || profilePicturePreview,
+      const formData = {
+        name: profile.name, // Ensure this matches the backend field
         address: profile.address,
         phone: profile.phone,
+        userType: profile.userType,
       };
-      setUser(updatedUser);
 
-      // Persist the updated user data in localStorage
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      const currentUserId = userId || (user && user.userId);
 
-      navigate('/student/dashboard', { state: { message: 'Profile updated successfully!' } });
+      const response = await fetch(`${apiUrl}/profile/${currentUserId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
+      if (response.ok) {
+        // Navigate to the respective dashboard based on user type
+        let dashboardPath = '/dashboard';
+        if (profile.userType === 'student') {
+          dashboardPath = `/student/dashboard/${currentUserId}`;
+        } else if (profile.userType === 'employer') {
+          dashboardPath = `/employer/dashboard/${currentUserId}`;
+        } else if (profile.userType === 'admin') {
+          dashboardPath = `/admin/dashboard/${currentUserId}`;
+        }
+
+        navigate(dashboardPath, { state: { message: 'Profile updated successfully!' } });
+      } else {
+        console.error('Error updating profile:', await response.text());
+        alert('There was an error updating your profile.');
+      }
     } catch (error) {
-      console.error('There was an error updating the profile!', error);
-      alert('Error updating profile. Please try again.');
+      console.error('Error updating profile:', error);
+      alert('There was an error updating your profile.');
     }
   };
 
-  const confirmationMessage = location.state?.message;
-
-  if (!user || !user.userId) {
-    return <div>Loading user information...</div>; 
+  if (!userId && !(user && user.userId)) {
+    return <div>Loading profile...</div>;
   }
 
   return (
     <div className="profile-container">
-      {confirmationMessage && (
-        <div className="confirmation-message">
-          <span>{confirmationMessage}</span>
-          <span>✔️</span>
-        </div>
-      )}
+      <div className="profile-picture-container">
+        <img
+          src={profilePicturePreview}
+          alt="Profile"
+          className="profile-picture-preview"
+        />
+      </div>
       <h2>Your Profile</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label>Profile Picture</label>
-          <input type="file" accept="image/*" onChange={handleProfilePictureChange} />
-          {profilePicturePreview && (
-            <img src={profilePicturePreview} alt="Profile" className="profile-picture-preview" />
-          )}
-        </div>
-        <div className="form-group">
-          <label>Full Name</label> {/* Changed label to 'Full Name' */}
+          <label>Full Name</label>
           <input
             type="text"
-            name="fullName" // Changed name to fullName
-            value={profile.fullName}
+            name="name"
+            value={profile.name}
             onChange={handleInputChange}
             readOnly
           />
@@ -159,15 +132,6 @@ const Profile = ({ apiUrl }) => {
             name="phone"
             value={profile.phone}
             onChange={handleInputChange}
-          />
-        </div>
-        <div className="form-group">
-          <label>Resume</label>
-          <input
-            type="file"
-            name="resume"
-            accept=".pdf, .doc, .docx"
-            onChange={handleFileChange}
           />
         </div>
         <button type="submit">Update Profile</button>

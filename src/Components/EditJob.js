@@ -3,14 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import './EditJob.css';
 
 const EditJob = ({ apiUrl }) => {
-  const { id } = useParams();
+  const { id } = useParams();  // Job ID from URL parameters
   const navigate = useNavigate();
   const [jobDetails, setJobDetails] = useState({
     jobTitle: '',
     numPeople: '',
     jobLocation: '',
     streetAddress: '',
-    companyDescription: '',
+    jobDescription: '',
     competitionId: '',
     internalClosingDate: '',
     externalClosingDate: '',
@@ -22,25 +22,49 @@ const EditJob = ({ apiUrl }) => {
     contactInformation: ''
   });
 
+  // Fetch job details on component mount
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
         const response = await fetch(`${apiUrl}/jobs/${id}`);
-        const result = await response.json();
-        setJobDetails(result);
+        if (response.ok) {
+          const result = await response.json();
+          setJobDetails({
+            jobTitle: result.jobTitle || '',
+            numPeople: result.numPeople || '',
+            jobLocation: result.jobLocation || '',
+            streetAddress: result.streetAddress || '',
+            jobDescription: result.jobDescription || '',
+            competitionId: result.competitionId || '',
+            internalClosingDate: result.internalClosingDate || '',
+            externalClosingDate: result.externalClosingDate || '',
+            payLevel: result.payLevel || '',
+            employmentType: result.employmentType || '',
+            travelFrequency: result.travelFrequency || '',
+            jobCategory: result.jobCategory || '',
+            companyName: result.companyName || '',
+            contactInformation: result.contactInformation || '',
+          });
+        } else {
+          const errorText = await response.text();
+          console.error('Error fetching job details:', errorText);
+        }
       } catch (error) {
         console.error('Error fetching job details:', error);
       }
     };
-
+  
     fetchJobDetails();
   }, [id, apiUrl]);
+  
 
+  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setJobDetails(prevDetails => ({ ...prevDetails, [name]: value }));
   };
 
+  // Handle form submission to update job details
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -75,6 +99,7 @@ const EditJob = ({ apiUrl }) => {
     <div className="edit-job-container">
       <h1>Edit Job</h1>
       <form onSubmit={handleSubmit}>
+        {/* Form fields for editing job details, pre-filled with fetched data */}
         <div className="form-group">
           <label htmlFor="jobTitle">Job Title</label>
           <input
@@ -123,11 +148,11 @@ const EditJob = ({ apiUrl }) => {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="companyDescription">Company Description</label>
+          <label htmlFor="jobDescription">Job Description</label>
           <textarea
-            id="companyDescription"
-            name="companyDescription"
-            value={jobDetails.companyDescription}
+            id="jobDescription"
+            name="jobDescription"
+            value={jobDetails.jobDescription}
             onChange={handleChange}
             required
           />
