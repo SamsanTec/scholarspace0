@@ -30,6 +30,7 @@
 .landing-page .footer {
   position: relative;
   z-index: 2;
+  background-color: #fffefe00;
 }
 
 .landing-page .logo {

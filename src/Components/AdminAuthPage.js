@@ -34,7 +34,7 @@ const AdminAuthPage = ({ apiUrl }) => {
           name: result.name,
           initials: result.name.match(/\b(\w)/g).join(''),
         });
-        navigate('/admin/dashboard');
+        navigate('/admin/dashboard/:userId');
       } else {
         const errorMessage = await response.text();
         setError(errorMessage);

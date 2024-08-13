@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
+import { useNavigate } from 'react-router-dom';
 import './AddUser.css';
 
 const AddUser = ({ apiUrl }) => {
@@ -7,12 +7,13 @@ const AddUser = ({ apiUrl }) => {
   const [password, setPassword] = useState('');
   const [userType, setUserType] = useState('student');
   const [fullName, setFullName] = useState('');
-  const [studentNumber, setStudentNumber] = useState('');
   const [companyName, setCompanyName] = useState('');
-  const [companyAddress, setCompanyAddress] = useState('');
+  const [address, setAddress] = useState('');
+  const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
-  
-  const navigate = useNavigate(); // Initialize useNavigate
+  const [userAddedSuccess, setUserAddedSuccess] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleAddUser = async (e) => {
     e.preventDefault();
@@ -21,14 +22,14 @@ const AddUser = ({ apiUrl }) => {
       email,
       password,
       userType,
-      fullName,
-      studentNumber,
-      companyName,
-      companyAddress,
+      fullName: userType === 'student' ? fullName : null,
+      companyName: userType === 'employer' ? companyName : null,
+      address,
+      phone,
     };
 
     try {
-      const response = await fetch(`${apiUrl}/signup`, {
+      const response = await fetch(`${apiUrl}/admin/add-user`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -39,8 +40,21 @@ const AddUser = ({ apiUrl }) => {
       const result = await response.json();
 
       if (response.ok) {
-        setMessage(`User added successfully: ${result.fullName || result.companyName}`);
-        navigate('/manage-users'); // Redirect to Manage Users page
+        setUserAddedSuccess(true);
+
+        // Clear form fields after successful addition
+        setEmail('');
+        setPassword('');
+        setUserType('student');
+        setFullName('');
+        setCompanyName('');
+        setAddress('');
+        setPhone('');
+
+        // Optionally, redirect to another page after a delay
+        setTimeout(() => {
+          navigate('/admin/manage-users');
+        }, 2000); // Redirect after 2 seconds
       } else {
         setMessage(`Error: ${result.message}`);
       }
@@ -51,40 +65,45 @@ const AddUser = ({ apiUrl }) => {
   };
 
   return (
-    <div className="container">
-      <h1 className="header">Add New User</h1>
-      <form onSubmit={handleAddUser} className="add-user-form">
-        <div className="form-group">
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+    <div className="add-user-form-container">
+      {userAddedSuccess ? (
+        <div className="success-card">
+          <h2>User Added Successfully!</h2>
+          <p>The user has been successfully added to the system.</p>
+          <p>You will be redirected to the manage users page shortly.</p>
         </div>
-        <div className="form-group">
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>User Type:</label>
-          <select
-            value={userType}
-            onChange={(e) => setUserType(e.target.value)}
-            required
-          >
-            <option value="student">Student</option>
-            <option value="employer">Employer</option>
-          </select>
-        </div>
-        {userType === 'student' && (
-          <>
+      ) : (
+        <form onSubmit={handleAddUser}>
+          <div className="form-group">
+            <label>Email:</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Password:</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>User Type:</label>
+            <select
+              value={userType}
+              onChange={(e) => setUserType(e.target.value)}
+              required
+            >
+              <option value="student">Student</option>
+              <option value="employer">Employer</option>
+            </select>
+          </div>
+          {userType === 'student' && (
             <div className="form-group">
               <label>Full Name:</label>
               <input
@@ -94,41 +113,41 @@ const AddUser = ({ apiUrl }) => {
                 required
               />
             </div>
-            <div className="form-group">
-              <label>Student Number:</label>
-              <input
-                type="text"
-                value={studentNumber}
-                onChange={(e) => setStudentNumber(e.target.value)}
-                required
-              />
-            </div>
-          </>
-        )}
-        {userType === 'employer' && (
-          <>
-            <div className="form-group">
-              <label>Company Name:</label>
-              <input
-                type="text"
-                value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Company Address:</label>
-              <input
-                type="text"
-                value={companyAddress}
-                onChange={(e) => setCompanyAddress(e.target.value)}
-                required
-              />
-            </div>
-          </>
-        )}
-        <button type="submit" className="btn">Add User</button>
-      </form>
+          )}
+          {userType === 'employer' && (
+            <>
+              <div className="form-group">
+                <label>Company Name:</label>
+                <input
+                  type="text"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  required
+                />
+              </div>
+            </>
+          )}
+          <div className="form-group">
+            <label>Address:</label>
+            <input
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Phone:</label>
+            <input
+              type="text"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+            />
+          </div>
+          <button type="submit" className="btn">Add User</button>
+        </form>
+      )}
       {message && <p className="message">{message}</p>}
     </div>
   );

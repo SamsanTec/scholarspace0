@@ -102,7 +102,7 @@ const StudentAuthPage = ({ apiUrl }) => {
       }
     } catch (error) {
       console.error('Error:', error);
-      setError('This email is already registered. Please sign in.');
+      setError('Invalid Credentials. Please try again');
       setShowError(true);
     }
   };

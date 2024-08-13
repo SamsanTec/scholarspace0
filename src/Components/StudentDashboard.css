@@ -1,53 +1,61 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
-*{font-family: "Open Sans";}
+* {
+  font-family: "Open Sans";
+}
 
 /* General Dashboard Styles */
 .dashboard {
   width: 100%;
-  height: 100vh; /* Full viewport height */
-  margin: 0; /* Remove default margin */
-  padding: 0; /* Remove padding for full-width view */
+  max-width: 1200px;
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  background-color: #f9f9f9; /* Light neutral background */
+  background-color: #7FA1C3; /* Light blue background color */
 }
 
-.joblistingsbanner{
+.joblistingsbanner {
   font-weight: 800;
-  color: #2b3a67;
+  color: #6482AD; /* Primary blue color for job listings title */
   font-size: 1.5rem;
+  margin-bottom: 20px;
 }
 
-.jobs{
+.jobs {
   display: flex;
   align-items: start;
   justify-content: start;
-  background-color: #2b3a67;
+  background-color: #F5EDED; /* Light neutral background inside the job section */
+  padding: 20px;
+  border-radius: 10px;
 }
-.job-listings{
+
+.job-listings {
   font-size: 1.25rem;
   font-weight: 800;
-  color: #2b3a67;
+  color: #2b3a67; /* Dark blue color for job listing text */
 }
 
 /* Navbar Styles */
 .navbar {
-  width: 100%; /* Ensure the navbar spans the full width */
+  width: 100%;
+  max-width: 1200px; /* Match the container width */
+  margin: 0 auto; /* Center the navbar */
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #4a0f34; /* Change to the desired color */
+  background-color: #6482AD; /* Primary color */
   padding: 10px 20px;
   color: white;
   box-sizing: border-box;
   position: sticky;
   top: 0;
-  z-index: 1000; /* Ensures the navbar stays on top */
+  z-index: 1000;
 }
 
 .dashboard-main {
-  flex-grow: 1; /* Occupies remaining space after navbar */
-  overflow-y: auto; /* Allow scrolling if content overflows */
+  flex-grow: 1;
+  overflow-y: auto;
   padding: 20px;
   text-align: left;
 }
@@ -56,18 +64,18 @@
 .job-listings {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center; /* Center the job listings */
-  gap: 20px; /* Add space between job cards */
+  justify-content: center;
+  gap: 20px;
 }
 
 .job-listings .job-card {
-  background-color: #ffffff;
-  border: 1px solid #e0e0e0;
+  background-color: #E2DAD6; /* Accent color for the job card background */
+  border: 1px solid #E2DAD6; /* Accent color for card border */
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  margin-bottom: 20px; /* Space below each card */
-  width: 300px; /* Fixed width for each job card */
+  margin-bottom: 20px;
+  width: 300px;
   box-sizing: border-box;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -79,12 +87,12 @@
 
 .job-listings .job-card h4 {
   font-size: 1.4rem;
-  color: #2b3a67; /* Matching deep blue for job title */
+  color: #2b3a67; /* Dark blue color for job title */
 }
 
 .job-listings .job-card p {
   font-size: 1rem;
-  color: #666666; /* Darker gray for job details */
+  color: #2b3a67; /* Dark blue color for job details */
 }
 
 /* Ensure full page layout */
@@ -96,12 +104,46 @@ html, body {
 body {
   display: flex;
   flex-direction: column;
-  background-color: #f9f9f9; /* Ensure background color is consistent */
+  background-color: #7FA1C3; /* Light blue background for the whole page */
 }
 
 .dashboard {
-  flex-grow: 1; /* Make the container grow to fill the page */
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+.footer {
+  width: 100%;
+  max-width: 1200px; /* Match the container width */
+  margin: 20px auto 0; /* Center the footer */
+  background-color: #003366; /* Dark blue background */
+  color: white;
+  text-align: center;
+  position: center;
+  padding: 10px 20px;
+  box-sizing: border-box;
+  font-family: 'Open Sans', sans-serif;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.footer p {
+  margin: 5px 0;
+}
+
+.footer a {
+  color: #E2DAD6; /* Light accent color for links */
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* Additional Styles for Consistency */
+.dashboard-main {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 20px;
+  text-align: left;
 }

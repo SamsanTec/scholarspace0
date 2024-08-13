@@ -1,52 +1,66 @@
-.container {
+.add-user-form-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
   padding: 20px;
-}
-
-.header {
-  font-size: 24px;
-  margin-bottom: 20px;
-}
-
-.add-user-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .form-group {
-  display: flex;
-  flex-direction: column;
+  margin-bottom: 20px;
 }
 
 .form-group label {
-  margin-bottom: 5px;
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
 }
 
 .form-group input,
 .form-group select {
+  width: 100%;
   padding: 8px;
+  box-sizing: border-box;
+  border-radius: 5px;
+  border: 1px solid #ccc;
   font-size: 16px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
 }
 
-.btn {
-  padding: 10px 15px;
-  font-size: 16px;
+.form-navigation {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.form-navigation .btn {
+  padding: 10px 20px;
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
-  align-self: flex-start;
 }
 
-.btn:hover {
+.form-navigation .btn:hover {
   background-color: #0056b3;
 }
 
 .message {
   margin-top: 20px;
-  font-size: 16px;
-  color: green;
+  color: #d9534f;
+}
+
+.success-card {
+  padding: 20px;
+  background-color: #e0ffe0;
+  border: 2px solid #90ee90;
+  border-radius: 10px;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.success-card h2 {
+  color: #2e8b57;
 }

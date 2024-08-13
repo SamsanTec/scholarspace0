@@ -6,13 +6,10 @@ import AdminAuthPage from './Components/AdminAuthPage';
 import ManageCourses from './Components/ManageCourses';
 import ViewCourses from './Components/ViewCourses';
 import AddCourse from './Components/AddCourse';
-import EditCourse from './Components/EditCourse';
+
 import ManageUsers from './Components/ManageUsers';
 import AddUser from './Components/AddUser';
 import ViewUsers from './Components/ViewUsers';
-import EditUser from './Components/EditUser';
-import Reports from './Components/Reports';
-import Settings from './Components/Settings';
 import EmployerAuthPage from './Components/EmployerAuthPage';
 import StudentOnboarding from './Components/StudentOnboarding';
 import StudentDashboard from './Components/StudentDashboard';
@@ -20,7 +17,7 @@ import JobListings from './Components/JobListings';
 import EmployerDashboard from './Components/EmployerDashboard';
 import AdminDashboard from './Components/AdminDashboard';
 import PostJob from './Components/PostJob';
-import EditJob from './Components/EditJob';
+
 import JobDetails from './Components/JobDetails';
 import ViewApplications from './Components/ViewApplications';
 import ApplicationDetails from './Components/ApplicationDetails';
@@ -67,7 +64,7 @@ const App = () => {
               {/* Employer Routes */}
               <Route path="/employer/dashboard/:userID" element={<EmployerDashboard apiUrl={apiUrl} />} />
               <Route path="/employer/post-job" element={<PostJob apiUrl={apiUrl} />} />
-              <Route path="/employer/edit-job/:jobId" element={<EditJob apiUrl={apiUrl} />} />
+        
               <Route path="/employer/view-applications/:jobId" element={<ViewApplications apiUrl={apiUrl} />} />
               <Route path="/employer/application-details/:applicationId" element={<ApplicationDetails apiUrl={apiUrl} />} />
               <Route path="/employers" element={<EmployerList apiUrl={apiUrl} />} />
@@ -76,16 +73,13 @@ const App = () => {
 
               {/* Admin Routes */}
               <Route path="/admin/dashboard/:userID" element={<AdminDashboard apiUrl={apiUrl} />} />
-              <Route path="/admin/manage-courses" element={<ManageCourses />} />
+              <Route path="/admin/manage-courses" element={<ManageCourses apiUrl={apiUrl} />} />
               <Route path="/admin/view-courses" element={<ViewCourses />} />
               <Route path="/admin/add-course" element={<AddCourse apiUrl={apiUrl} />} />
-              <Route path="/admin/edit-course" element={<EditCourse />} />
-              <Route path="/admin/manage-users" element={<ManageUsers />} />
-              <Route path="/admin/add-user" element={<AddUser />} />
+              
+              <Route path="/admin/manage-users" element={<ManageUsers apiUrl={apiUrl}/>} />
+              <Route path="/admin/add-user" element={<AddUser apiUrl={apiUrl}/>} />
               <Route path="/admin/view-users" element={<ViewUsers />} />
-              <Route path="/admin/edit-user/:userId" element={<EditUser />} />
-              <Route path="/admin/reports" element={<Reports />} />
-              <Route path="/admin/settings" element={<Settings />} />
               <Route path="/admin/profile/:userID" element={<Profile apiUrl={apiUrl} />} /> {/* Add admin profile route */}
             </Routes>
           </div>

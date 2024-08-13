@@ -38,12 +38,12 @@ const NavbarStudent = ({ apiUrl }) => {
   };
 
   return (
-    <nav className="navbar navbar-student">
+    <nav className="navbar">
       <div className="navbar-logo">
-        <img src="/path/to/logo.png" alt="Career Connection Logo" />
+        <img src="/logo.png" alt="Career Connection Logo" />
       </div>
       <div className="navbar-links">
-        <Link to="/student/dashboard">Dashboard</Link>
+        <Link to={`/student/dashboard/${user?.userId}`}>Dashboard</Link>
         <Link to="/jobs">Jobs</Link>
         <Link to="/employers">Employers</Link>
         <Link to="/courses">Courses</Link>

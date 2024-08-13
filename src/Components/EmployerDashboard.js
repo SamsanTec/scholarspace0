@@ -72,7 +72,6 @@ const EmployerDashboard = ({ apiUrl }) => {
               <p><strong>Address:</strong> {job.streetAddress}</p>
               <p><strong>Description:</strong> {job.companyDescription}</p>
               <div className="job-card-actions">
-                <Link to={`/employer/edit-job/${job.id}`} className="edit-button">Edit</Link>
                 <Link to={`/employer/view-applications/${job.id}`} className="view-applications-button">View Applications</Link>
                 <button onClick={() => handleDelete(job.id)} className="delete-button">Delete</button>
               </div>

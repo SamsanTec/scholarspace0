@@ -9,7 +9,7 @@ const PrivacyPolicy = () => {
       <h1>Privacy Policy</h1>
     </div>
     <div className="privacy-policy-container">
-      <h1>Privacy Policy for SchlarSpace</h1>
+      <h1>Privacy Policy for ScholarSpace</h1>
       <p><strong>Effective Date:</strong> 13/Aug/2024</p>
 
       <h2>1. Information We Collect</h2>

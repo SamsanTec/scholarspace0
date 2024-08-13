@@ -32,6 +32,7 @@ db.connect((err) => {
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+
 // Signup Route
 app.post('/signup', upload.single('profilePicture'), async (req, res) => {
     const { email, password, userType, fullName, companyName, address, phone } = req.body;
@@ -116,6 +117,7 @@ app.post('/login', async (req, res) => {
         res.status(500).json({ message: 'Error logging in.' });
     }
 });
+
 
 
 // Fetch user profile by ID
@@ -274,27 +276,6 @@ app.post('/post-job', (req, res) => {
             }
             res.json({ message: 'Job posted successfully!', job: jobResults[0] });
         });
-    });
-});
-
-
-// Route to update a job by ID
-app.put('/jobs/:jobId', (req, res) => {
-    const { jobId } = req.params;
-    const { jobTitle, numPeople, jobLocation, streetAddress, jobDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, jobCategory, companyName, contactInformation } = req.body;
-
-    const query = `
-        UPDATE jobs 
-        SET jobTitle = ?, numPeople = ?, jobLocation = ?, streetAddress = ?, jobDescription = ?, competitionId = ?, internalClosingDate = ?, externalClosingDate = ?, payLevel = ?, employmentType = ?, travelFrequency = ?, jobCategory = ?, companyName = ?, contactInformation = ? 
-        WHERE id = ?
-    `;
-
-    db.execute(query, [jobTitle, numPeople, jobLocation, streetAddress, jobDescription, competitionId, internalClosingDate, externalClosingDate, payLevel, employmentType, travelFrequency, jobCategory, companyName, contactInformation, jobId], (err) => {
-        if (err) {
-            console.error('Error updating job:', err.stack);
-            return res.status(500).json({ message: 'Error updating job.' });
-        }
-        res.json({ message: 'Job updated successfully!' });
     });
 });
 
@@ -586,11 +567,19 @@ app.get('/employers/:employerId', (req, res) => {
     });
 });
 
+// Add a new course
 app.post('/admin/courses', (req, res) => {
-    const { title, description, category } = req.body;
-    
-    const query = 'INSERT INTO courses (title, description, category) VALUES (?, ?, ?)';
-    db.execute(query, [title, description, category], (err, results) => {
+    const { title, description, category, external_url } = req.body;
+
+    // Validate the required fields
+    if (!title || !description || !category) {
+        return res.status(400).json({ message: 'Title, description, and category are required.' });
+    }
+
+    const query = 'INSERT INTO courses (title, description, category, external_url) VALUES (?, ?, ?, ?)';
+    const values = [title, description, category, external_url || null]; // Handle optional external_url
+
+    db.execute(query, values, (err, results) => {
         if (err) {
             console.error('Error inserting course:', err.stack);
             return res.status(500).json({ message: 'Error adding course.' });
@@ -611,6 +600,25 @@ app.get('/courses', (req, res) => {
     });
 });
 
+// Route to delete a specific course by ID
+app.delete('/courses/:courseId', (req, res) => {
+    const { courseId } = req.params;
+
+    const query = 'DELETE FROM courses WHERE id = ?';
+
+    db.execute(query, [courseId], (err, results) => {
+        if (err) {
+            console.error('Error deleting course:', err.stack);
+            return res.status(500).json({ message: 'Error deleting course.' });
+        }
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ message: 'Course not found.' });
+        }
+        res.json({ message: 'Course deleted successfully!' });
+    });
+});
+
+
 // Fetch user statistics
 app.get('/admin/user-stats', (req, res) => {
     const query = `
@@ -630,18 +638,155 @@ app.get('/admin/user-stats', (req, res) => {
     });
 });
 
-// Fetch active courses count
-app.get('/admin/active-courses', (req, res) => {
-    const query = 'SELECT COUNT(*) as activeCourses FROM courses WHERE isActive = 1';
+// Route to fetch all users
+app.get('/users', (req, res) => {
+    const query = `
+      SELECT 
+        users.id, 
+        users.email, 
+        users.userType, 
+        students.fullName, 
+        employers.companyName, 
+        admins.adminName 
+      FROM users 
+      LEFT JOIN students ON users.id = students.user_id 
+      LEFT JOIN employers ON users.id = employers.user_id 
+      LEFT JOIN admins ON users.id = admins.user_id
+    `;
+  
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error('Error fetching users:', err.stack);
+        return res.status(500).json({ message: 'Error fetching users.' });
+      }
+      res.json(results);
+    });
+});
+
+// Route to delete a user (except admin)
+app.delete('/users/:userId', (req, res) => {
+    const { userId } = req.params;
+
+    // Check the user's type before deleting
+    const getUserTypeQuery = 'SELECT userType FROM users WHERE id = ?';
+    db.query(getUserTypeQuery, [userId], (err, results) => {
+        if (err) {
+            console.error('Error fetching user type:', err.stack);
+            return res.status(500).json({ message: 'Error fetching user type.', error: err.message });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        const userType = results[0].userType;
+
+        if (userType === 'Admin') {
+            return res.status(403).json({ message: 'You cannot delete an admin.' });
+        }
+
+        // Handle related records before deleting the user
+        let deleteRelatedQuery = '';
+
+        if (userType === 'student') {
+            deleteRelatedQuery = 'DELETE FROM students WHERE user_id = ?';
+        } else if (userType === 'employer') {
+            deleteRelatedQuery = 'DELETE FROM employers WHERE user_id = ?';
+        }
+
+        db.query(deleteRelatedQuery, [userId], (err) => {
+            if (err) {
+                console.error(`Error deleting related ${userType} data:`, err.stack);
+                return res.status(500).json({ message: `Error deleting related ${userType} data.`, error: err.message });
+            }
+
+            // Then, delete the user
+            const deleteUserQuery = 'DELETE FROM users WHERE id = ?';
+            db.query(deleteUserQuery, [userId], (err) => {
+                if (err) {
+                    console.error('Error deleting user:', err.stack);
+                    return res.status(500).json({ message: 'Error deleting user.', error: err.message });
+                }
+                res.json({ message: 'User deleted successfully.' });
+            });
+        });
+    });
+});
+
+
+
+
+// Admin Add User Route
+app.post('/admin/add-user', async (req, res) => {
+    const { email, userType, fullName, companyName, address, phone } = req.body;
+
+    // Set a general password for new users
+    const defaultPassword = 'Password123'; // This should be changed or generated securely
+
+    try {
+        // Check if the email already exists in the database
+        const checkEmailQuery = 'SELECT * FROM users WHERE email = ?';
+        const [existingUser] = await db.promise().execute(checkEmailQuery, [email]);
+
+        if (existingUser.length > 0) {
+            return res.status(400).json({ message: 'This email is already registered.' });
+        }
+
+        // Insert the new user into the users table
+        const insertUserQuery = 'INSERT INTO users (email, password, userType, address, phone) VALUES (?, ?, ?, ?, ?)';
+        const [userResult] = await db.promise().execute(insertUserQuery, [email, defaultPassword, userType, address, phone]);
+
+        const userId = userResult.insertId;
+
+        // Insert into the specific table based on userType
+        if (userType === 'student') {
+            const insertStudentQuery = 'INSERT INTO students (user_id, fullName) VALUES (?, ?)';
+            await db.promise().execute(insertStudentQuery, [userId, fullName]);
+        } else if (userType === 'employer') {
+            const insertEmployerQuery = 'INSERT INTO employers (user_id, companyName) VALUES (?, ?)';
+            await db.promise().execute(insertEmployerQuery, [userId, companyName]);
+        }
+
+        res.status(201).json({ message: 'User added successfully', userId });
+    } catch (err) {
+        console.error('Error adding user:', err.stack);
+        res.status(500).json({ message: 'Error adding user.' });
+    }
+});
+
+app.get('/admin/recent-activities', (req, res) => {
+    const query = `
+        SELECT 
+            activity_type, 
+            email, 
+            CONVERT_TZ(timestamp, '+00:00', '-07:00') AS timestamp 
+        FROM user_activities
+        JOIN users ON user_activities.user_id = users.id
+        ORDER BY timestamp DESC 
+        LIMIT 10`;
 
     db.execute(query, (err, results) => {
         if (err) {
-            console.error('Error fetching active courses:', err.stack);
-            return res.status(500).json({ message: 'Error fetching active courses.' });
+            console.error('Error fetching recent activities:', err.stack);
+            return res.status(500).json({ message: 'Error fetching recent activities.' });
+        }
+        res.json(results);
+    });
+});
+
+
+app.get('/admin/total-courses', (req, res) => {
+    const query = 'SELECT COUNT(*) as totalCourses FROM courses';
+
+    db.execute(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching total courses:', err.stack);
+            return res.status(500).json({ message: 'Error fetching total courses.' });
         }
         res.json(results[0]);
     });
 });
+
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
