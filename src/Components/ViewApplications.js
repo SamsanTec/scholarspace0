@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import './ViewApplications.css';
 import { UserContext } from './UserContext';
 
@@ -10,9 +10,7 @@ const ViewApplications = ({ apiUrl }) => {
   const [jobTitle, setJobTitle] = useState(''); // State to store job title
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(''); // State for success message
-  const navigate = useNavigate();
-
+  
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
@@ -52,36 +50,12 @@ const ViewApplications = ({ apiUrl }) => {
     fetchApplications();
   }, [apiUrl, jobId, user.userId]);
 
-  const handleRejectApplication = async (applicationId) => {
-    try {
-      const response = await fetch(`${apiUrl}/applications/${applicationId}/reject`, {
-        method: 'PATCH',
-      });
-
-      if (response.ok) {
-        setSuccessMessage('Application rejected successfully.');
-        setTimeout(() => {
-          navigate(`/employer/view-applications/${jobId}`);
-        }, 2000); // Redirect after 2 seconds
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || 'Failed to reject application.');
-      }
-    } catch (error) {
-      setError(error.message || 'Failed to reject application.');
-    }
-  };
-
   if (loading) {
     return <div>Loading applications...</div>;
   }
 
   if (error) {
     return <div>Error: {error}</div>;
-  }
-
-  if (successMessage) {
-    return <div className="success-message">{successMessage}</div>;
   }
 
   if (applications.length === 0) {
@@ -97,12 +71,6 @@ const ViewApplications = ({ apiUrl }) => {
             <h3>{app.firstName} {app.lastName}</h3>
             <p><strong>Email:</strong> {app.email}</p>
             <p><strong>Desired Compensation:</strong> {app.desiredCompensation}</p>
-            <button
-              className="reject-button"
-              onClick={() => handleRejectApplication(app.id)}
-            >
-              Reject
-            </button>
             <Link to={`/employer/application-details/${app.id}`} className="details-link">
               View Details
             </Link>

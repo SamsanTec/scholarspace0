@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import NavbarStudent from './NavbarStudent';
 import './JobListings.css';
 
 const JobListings = ({ apiUrl }) => {
@@ -57,13 +56,11 @@ const JobListings = ({ apiUrl }) => {
 
   return (
     <div className="job-listings-container">
-      <NavbarStudent />
       <main className="dashboard-main">
         <div className="job-listings-header">
           <h2>Job Listings</h2>
           <div className="job-listings-links">
-            <Link to="/saved" className="job-listings-link">Saved</Link>
-            <Link to="/applied" className="job-listings-link">Applied</Link>
+            <Link to="/student/jobs/saved" className="job-listings-link">Saved</Link>
           </div>
         </div>
         <div className="job-filters">
@@ -119,8 +116,9 @@ const JobListings = ({ apiUrl }) => {
         <div className="job-cards">
           {filteredJobs.length > 0 ? (
             filteredJobs.map((job, index) => (
-              <Link to={`/job-details/${job.id}`} key={index} className="job-card-link">
+              <Link to={`/student/job-details/${job.id}`} key={index} className="job-card-link">
                 <div className="job-card">
+                  
                   <h3>{job.jobTitle}</h3>
                   <p>{job.companyName}</p>
                   <p>{job.streetAddress}</p>

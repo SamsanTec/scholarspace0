@@ -210,20 +210,25 @@ const PostJob = ({ apiUrl }) => {
           </select>
         </div>
         <div className="form-group">
-          <label htmlFor="travelFrequency">Travel Frequency *</label>
-          <select 
-            id="travelFrequency" 
-            name="travelFrequency" 
-            value={travelFrequency}
-            onChange={handleInputChange(setTravelFrequency)}
-            required
-          >
-            <option value="">Select an option</option>
-            {[...Array(7).keys()].map(day => (
-              <option key={day + 1} value={`${day + 1} days per week`}>{day + 1} days per week</option>
-            ))}
-          </select>
-        </div>
+  <label htmlFor="travelFrequency">Travel Frequency *</label>
+  <select 
+    id="travelFrequency" 
+    name="travelFrequency" 
+    value={travelFrequency}
+    onChange={handleInputChange(setTravelFrequency)}
+    required
+  >
+    <option value="">Select an option</option>
+    {[...Array(5).keys()].map(day => {
+      const dayValue = day + 1;
+      const label = dayValue === 1 ? '1 day per week' : `${dayValue} days per week`;
+      return (
+        <option key={dayValue} value={label}>{label}</option>
+      );
+    })}
+  </select>
+</div>
+
         <div className="form-group">
           <label htmlFor="jobCategory">Job Category *</label>
           <select 

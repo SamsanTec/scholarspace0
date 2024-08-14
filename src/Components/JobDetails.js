@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import NavbarStudent from './NavbarStudent'; 
 import { UserContext } from './UserContext'; // Assuming you have a UserContext
 import './JobDetails.css';
 
@@ -102,7 +101,7 @@ const JobDetails = ({ apiUrl }) => {
     userAppliedJobs.push(jobToApply);
     appliedJobs[user.userId] = userAppliedJobs;
     localStorage.setItem('appliedJobs', JSON.stringify(appliedJobs));
-    navigate(`/apply-job/${jobId}`); // Redirect after successful application
+    navigate(`/student/apply-job/${jobId}`); // Redirect after successful application
   };
 
   if (loading) {
@@ -119,7 +118,6 @@ const JobDetails = ({ apiUrl }) => {
 
   return (
     <div className="job-details-page">
-      <NavbarStudent />
       <div className="job-details-container">
         <div className="job-header">
           <div className="job-header-left">
@@ -135,7 +133,7 @@ const JobDetails = ({ apiUrl }) => {
             <button
               className="apply-button"
               onClick={handleApply}
-              disabled={alreadyApplied}
+
             >
               {alreadyApplied ? 'Already Applied' : 'Apply'}
             </button>

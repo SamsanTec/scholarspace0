@@ -28,6 +28,9 @@ export const UserProvider = ({ children }) => {
     }
   });
 
+  // Determine if the user is authenticated
+  const isAuthenticated = user.userId !== null;
+
   // Persist user data to localStorage whenever it changes
   useEffect(() => {
     try {
@@ -45,9 +48,20 @@ export const UserProvider = ({ children }) => {
     }));
   };
 
+  // Function to log out the user
+  const logoutUser = () => {
+    setUser({
+      userId: null,
+      userType: null,
+      name: '',
+      profilePicture: null,
+    });
+    localStorage.removeItem('user');
+  };
+
   // Provide the user state and updater function to the rest of the app
   return (
-    <UserContext.Provider value={{ user, setUser: updateUser }}>
+    <UserContext.Provider value={{ user, isAuthenticated, setUser: updateUser, logoutUser }}>
       {children}
     </UserContext.Provider>
   );

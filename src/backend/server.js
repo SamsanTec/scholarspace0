@@ -263,21 +263,22 @@ app.post('/post-job', (req, res) => {
         userId
     ], (err, results) => {
         if (err) {
-            console.error('Error inserting job data:', err.stack);
-            return res.status(500).json({ message: 'Error posting job.' });
+            console.error('Error inserting job data:', err);
+            return res.status(500).json({ message: 'Error posting job.', error: err.message });
         }
 
         const jobId = results.insertId;
         const selectQuery = 'SELECT * FROM jobs WHERE id = ?';
         db.execute(selectQuery, [jobId], (err, jobResults) => {
             if (err) {
-                console.error('Error fetching job data:', err.stack);
-                return res.status(500).json({ message: 'Error fetching job data.' });
+                console.error('Error fetching job data:', err);
+                return res.status(500).json({ message: 'Error fetching job data.', error: err.message });
             }
             res.json({ message: 'Job posted successfully!', job: jobResults[0] });
         });
     });
 });
+
 
 
 // Route to delete a specific job by ID
@@ -310,7 +311,12 @@ app.get('/jobs/employer/:userId', (req, res) => {
 
 // Route to get all jobs
 app.get('/jobs', (req, res) => {
-    const query = 'SELECT * FROM jobs';
+    const query = `
+        SELECT jobs.*, users.profilePicture 
+        FROM jobs 
+        JOIN users ON jobs.employerId = users.id 
+        WHERE users.userType = 'employer'
+    `;
     db.execute(query, (err, results) => {
         if (err) {
             console.error('Error fetching jobs:', err.stack);
@@ -324,7 +330,12 @@ app.get('/jobs', (req, res) => {
 app.get('/jobs/:jobId', (req, res) => {
     const { jobId } = req.params;
 
-    const query = 'SELECT * FROM jobs WHERE id = ?';
+    const query = `
+        SELECT jobs.*, users.profilePicture 
+        FROM jobs 
+        JOIN users ON jobs.employerId = users.id 
+        WHERE jobs.id = ? AND users.userType = 'employer'
+    `;
     db.execute(query, [jobId], (err, results) => {
         if (err) {
             console.error('Error fetching job data:', err.stack);
@@ -493,79 +504,6 @@ app.patch('/applications/:applicationId/status', (req, res) => {
       res.json({ message: 'Application status updated successfully!' });
     });
   });
-  
-
-  // Route to fetch applied jobs for a user
-app.get('/applied-jobs', async (req, res) => {
-    try {
-        const { userId } = req.query; // Assuming userId is passed as a query parameter
-
-        if (!userId) {
-            return res.status(400).json({ message: 'User ID is required.' });
-        }
-
-        // Join applications with jobs to fetch detailed job information
-        const query = `
-            SELECT jobs.id AS jobId, jobs.title AS jobTitle, jobs.companyName, jobs.location AS jobLocation, 
-                   applications.resumePath, applications.coverLetterPath, applications.applyDate
-            FROM applications
-            INNER JOIN jobs ON applications.jobId = jobs.id
-            WHERE applications.userId = ?
-        `;
-
-        db.execute(query, [userId], (err, results) => {
-            if (err) {
-                console.error('Error fetching applied jobs:', err.stack);
-                return res.status(500).json({ message: 'Error fetching applied jobs.' });
-            }
-            res.json(results);
-        });
-    } catch (error) {
-        console.error('Error processing request:', error);
-        res.status(500).json({ message: 'Error fetching applied jobs.' });
-    }
-});
-
-
-// Route to fetch all employers
-app.get('/employers', (req, res) => {
-    const query = `
-        SELECT employers.*, users.email 
-        FROM employers 
-        JOIN users ON employers.user_id = users.id
-    `;
-
-    db.execute(query, (err, results) => {
-        if (err) {
-            console.error('Error fetching employers:', err.stack);
-            return res.status(500).json({ message: 'Error fetching employers.' });
-        }
-        res.json(results);
-    });
-});
-
-// Route to fetch employer details including email from users table
-app.get('/employers/:employerId', (req, res) => {
-    const { employerId } = req.params;
-    const query = `
-        SELECT employers.*, users.email 
-        FROM employers 
-        JOIN users ON employers.user_id = users.id 
-        WHERE employers.user_id = ?
-    `;
-
-    db.execute(query, [employerId], (err, results) => {
-        if (err) {
-            console.error('Error fetching employer details:', err.stack);
-            return res.status(500).json({ message: 'Error fetching employer details.' });
-        }
-        if (results.length > 0) {
-            res.json(results[0]);
-        } else {
-            res.status(404).json({ message: 'Employer not found.' });
-        }
-    });
-});
 
 // Add a new course
 app.post('/admin/courses', (req, res) => {

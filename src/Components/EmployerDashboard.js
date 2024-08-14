@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { UserContext } from './UserContext';
-import NavbarEmployer from './NavbarEmployer';
 import './EmployerDashboard.css';
 
 const EmployerDashboard = ({ apiUrl }) => {
@@ -55,7 +54,6 @@ const EmployerDashboard = ({ apiUrl }) => {
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
-        <NavbarEmployer />
       </header>
       <main className="dashboard-main">
         <h2>Employer Dashboard</h2>

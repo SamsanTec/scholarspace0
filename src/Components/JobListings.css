@@ -1,7 +1,16 @@
-.job-listings-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.job-listings-container {
+  padding: 20px;
+  background-color: #F5EDED; /* Light background color similar to the image */
+}
+
+.dashboard-main {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.job-listings-header h2 {
+  font-size: 1.8rem;
+  color: #333; /* Dark text color for header */
 }
 
 .job-listings-links {
@@ -10,11 +19,43 @@
 }
 
 .job-listings-link {
-  color: #0056b3;
+  color: #6482AD; /* Blue color matching the image */
   text-decoration: none;
   font-weight: bold;
 }
 
 .job-listings-link:hover {
   text-decoration: underline;
+}
+
+.job-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.job-filters input,
+.job-filters select {
+  padding: 8px 12px;
+  border: 1px solid #7FA1C3; /* Light blue border */
+  border-radius: 5px;
+  background-color: #E2DAD6; /* Very light background */
+  color: #333; /* Dark text color */
+  font-size: 0.9rem;
+}
+
+.search-button {
+  padding: 6px 12px; /* Smaller button */
+  background-color: #6482AD; /* Blue color matching the image */
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
+}
+
+.search-button:hover {
+  background-color: #7FA1C3; /* Slightly lighter blue on hover */
 }

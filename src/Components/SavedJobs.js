@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import NavbarStudent from './NavbarStudent';
 import { UserContext } from './UserContext';
 import './SavedJobs.css';
 
@@ -33,7 +32,6 @@ const SavedJobs = () => {
   if (savedJobs.length === 0) {
     return (
       <div className="saved-jobs-page">
-        <NavbarStudent />
         <div className="saved-jobs-container">
           <h2>Saved Jobs</h2>
           <p>No saved jobs found.</p>
@@ -44,7 +42,6 @@ const SavedJobs = () => {
 
   return (
     <div className="saved-jobs-page">
-      <NavbarStudent />
       <div className="saved-jobs-container">
         <h2>Saved Jobs</h2>
         <div className="saved-job-cards">

@@ -16,7 +16,7 @@ const JobCard = ({ job }) => {
         <p>{new Date(job.created_at).toLocaleDateString()}</p>
       </div>
       <div className="job-card-footer">
-        <Link to={`/job-details/${job.id}`} className="job-card-link">
+        <Link to={`/student/job-details/${job.id}`} className="job-card-link">
           View Details
         </Link>
       </div>

@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from './UserContext';
-import { getInitials } from '../utils/getInitials';
 import './Navbar.css';
 
 const NavbarEmployer = ({ apiUrl }) => {
@@ -40,27 +39,21 @@ const NavbarEmployer = ({ apiUrl }) => {
   return (
     <nav className="navbar navbar-employer">
       <div className="navbar-logo">
-        <img src="/path/to/logo.png" alt="Career Connection Logo" />
+        <img src="/logo.png" alt="scholarspace Logo" />
       </div>
       <div className="navbar-links">
-        <Link to="/employer/dashboard">Dashboard</Link>
+        <Link to={`/employer/dashboard/${user?.userId}`}>Dashboard</Link>
         <Link to="/employer/post-job">Post Job</Link>
       </div>
       <div className="navbar-profile">
         {user.userId ? (
           <>
             <div className="profile-link" onClick={handleProfileClick}>
-              {profilePictureUrl ? (
-                <img
-                  src={profilePictureUrl}
-                  alt="Profile"
-                  className="profile-picture"
-                  onError={() => setProfilePictureUrl(null)} // Fallback to initials if image fails
-                />
-              ) : (
-                <div className="profile-initials">{getInitials(user.fullName)}</div>
-              )}
-              <div className="profile-name">{user.fullName}</div>
+              <img
+                src={profilePictureUrl || '/path/to/default-user-image.png'} // Fallback to default image
+                alt="Profile"
+                className="profile-picture"
+              />
             </div>
             <button className="logout-button" onClick={handleLogout}>Logout</button>
           </>
