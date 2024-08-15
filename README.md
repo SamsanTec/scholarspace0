@@ -43,6 +43,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 4. Start the development server:
    ```bash
+   npm run server
    npm start
 
 ## Available Scripts
