@@ -43,6 +43,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 4. Start the development server:
    ```bash
+   npm run server
    npm start
 
 ## Available Scripts
@@ -97,10 +98,10 @@ To connect to the MySQL database hosted on Azure using MySQL Workbench, follow t
 
 3. **Connection Details**:
    - **Connection Name**: Name your connection (e.g., ScholarSpaceDB).
-   - **Hostname**: Enter the Azure MySQL host name (e.g., `your-server-name.mysql.database.azure.com`).
+   - **Hostname**: Enter the Azure MySQL host name (which is, `scholarspace.mysql.database.azure.com`).
    - **Port**: The default MySQL port is `3306`.
-   - **Username**: Enter your MySQL username (e.g., `your-username@your-server-name`).
-   - **Password**: Enter your MySQL password. You can save it in the vault if you prefer.
+   - **Username**: Enter your MySQL username (`akash`).
+   - **Password**: Enter your MySQL password. (`Bhangu_2232`).
 
 4. **Test the Connection**:
    - Click `Test Connection` to verify that the connection is successful.
@@ -129,7 +130,7 @@ The following user accounts are available for testing:
 - **Frontend**: React.js, CSS
 - **Backend**: Express.js, Node.js
 - **Database**: MySQL hosted on Azure
-- **Other Tools**: Axios, bcrypt, JWT, MySQL Workbench
+- **Other Tools**: Axios,  MySQL Workbench
 
 ## License
 
