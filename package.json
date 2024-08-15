@@ -46,7 +46,7 @@
     "eject": "react-scripts eject",
     "server": "node src/backend/server.js"
   },
-  
+
   "eslintConfig": {
     "extends": [
       "react-app",
