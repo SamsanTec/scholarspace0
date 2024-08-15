@@ -38,14 +38,15 @@
     "use-places-autocomplete": "^4.0.1",
     "web-vitals": "^2.1.4"
   },
-  "scripts": {
+"scripts": {
     "predeploy": "npm run build",
-    "start": "concurrently \"npm run server\" \"react-scripts start\"",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "server": "node src/backend/server.js"
   },
+  
   "eslintConfig": {
     "extends": [
       "react-app",
