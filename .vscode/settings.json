@@ -1,0 +1,8 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/7fc244d3-9445-4942-b2dd-e48884dd4530/resourceGroups/ScholarSpace/providers/Microsoft.Web/sites/scholarspace",
+    "appService.deploySubpath": "."
+}

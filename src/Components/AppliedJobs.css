@@ -1,0 +1,48 @@
+.applied-jobs-page {
+    padding: 20px;
+  }
+  
+  .applied-jobs-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .applied-job-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .applied-job-card {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: calc(33.333% - 20px);
+    box-sizing: border-box;
+  }
+  
+  .applied-job-card h3 {
+    margin-top: 0;
+    font-size: 1.2rem;
+  }
+  
+  .applied-job-card p {
+    margin: 0.5rem 0;
+    color: #555;
+  }
+  
+  .remove-button {
+    background-color: #e74c3c;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .remove-button:hover {
+    background-color: #c0392b;
+  }
+  

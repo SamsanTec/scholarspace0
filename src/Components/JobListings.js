@@ -116,7 +116,7 @@ const JobListings = ({ apiUrl }) => {
         <div className="job-cards">
           {filteredJobs.length > 0 ? (
             filteredJobs.map((job, index) => (
-              <Link to={`/student/job-details/${job.id}`} key={index} className="job-card-link">
+              <Link to={`student/job-details/${job.id}`} key={index} className="job-card-link">
                 <div className="job-card">
                   
                   <h3>{job.jobTitle}</h3>

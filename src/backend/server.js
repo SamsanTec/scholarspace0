@@ -311,12 +311,7 @@ app.get('/jobs/employer/:userId', (req, res) => {
 
 // Route to get all jobs
 app.get('/jobs', (req, res) => {
-    const query = `
-        SELECT jobs.*, users.profilePicture 
-        FROM jobs 
-        JOIN users ON jobs.employerId = users.id 
-        WHERE users.userType = 'employer'
-    `;
+    const query = 'SELECT * FROM jobs';
     db.execute(query, (err, results) => {
         if (err) {
             console.error('Error fetching jobs:', err.stack);
@@ -330,12 +325,7 @@ app.get('/jobs', (req, res) => {
 app.get('/jobs/:jobId', (req, res) => {
     const { jobId } = req.params;
 
-    const query = `
-        SELECT jobs.*, users.profilePicture 
-        FROM jobs 
-        JOIN users ON jobs.employerId = users.id 
-        WHERE jobs.id = ? AND users.userType = 'employer'
-    `;
+    const query = 'SELECT * FROM jobs WHERE id = ?';
     db.execute(query, [jobId], (err, results) => {
         if (err) {
             console.error('Error fetching job data:', err.stack);
@@ -504,6 +494,8 @@ app.patch('/applications/:applicationId/status', (req, res) => {
       res.json({ message: 'Application status updated successfully!' });
     });
   });
+  
+
 
 // Add a new course
 app.post('/admin/courses', (req, res) => {
