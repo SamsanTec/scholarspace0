@@ -47,7 +47,7 @@ const SavedJobs = () => {
         <div className="saved-job-cards">
           {savedJobs.map((job, index) => (
             <div key={index} className="saved-job-card">
-              <Link to={`/job-details/${job.id}`}>
+              <Link to={`job-details/${job.id}`}>
                 <h3>{job.jobTitle}</h3>
                 <p>{job.companyName}</p>
                 <p>{job.jobLocation}</p>

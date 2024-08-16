@@ -72,6 +72,8 @@ const App = () => {
               <Route path="/student/jobs" element={<JobListings apiUrl={apiUrl} />} />
               <Route path="/student/apply-job/:jobId" element={<ApplyJobForm apiUrl={apiUrl} />} />
               <Route path="/student/job-details/:jobId" element={<JobDetails apiUrl={apiUrl} />} />
+              <Route path="/student/jobs/job-details/:jobId" element={<JobDetails apiUrl={apiUrl} />} />
+              <Route path="/student/jobs/saved/job-details/:jobId" element={<JobDetails apiUrl={apiUrl} />} />
               <Route path="/student/courses" element={<Courses apiUrl={apiUrl} />} />
               <Route path="/student/jobs/saved" element={<SavedJobs apiUrl={apiUrl} />} />
               <Route path="/student/profile/:userID" element={<Profile apiUrl={apiUrl} />} />
